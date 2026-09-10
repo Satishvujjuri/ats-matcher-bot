@@ -1,6 +1,1 @@
-streamlit
-google-genai
-PyPDF2
-pandas
-plotly
-python-dotenv
+-e "streamlit\ngoogle-genai\nPyPDF2\npandas\nplotly\npython-dotenv" 
