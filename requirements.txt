@@ -1,1 +1,5 @@
--e "streamlit\ngoogle-genai\nPyPDF2\npandas\nplotly\npython-dotenv" 
+python-telegram-bot
+google-genai
+pypdf
+matplotlib
+python-dotenv
