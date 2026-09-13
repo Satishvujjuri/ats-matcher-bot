@@ -441,3 +441,16 @@ async def handle_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # 6. Fallback to Welcome Guide for unrecognized inputs
     await send_welcome_guide(update)
+    
+import os
+import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Read from Streamlit Secrets (Cloud) first, then fallback to os.getenv (.env / Local)
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+
+if not GEMINI_API_KEY:
+    st.error("⚠️ GEMINI_API_KEY is missing. Please add it to your Streamlit Secrets or .env file.")
+    st.stop()
