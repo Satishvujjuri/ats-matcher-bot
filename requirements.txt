@@ -4,6 +4,3 @@ python-dotenv
 pypdf
 pandas
 plotly
-matplotlib
-python-telegram-bot
-httpx
