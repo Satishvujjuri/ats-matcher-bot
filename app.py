@@ -479,14 +479,14 @@ Return ONLY valid JSON matching this schema:
         }}
       ],
       "project_improvements": [
-        {{
-          "project_name": "Project Name Found in Resume",
-          "candidate_original_description": "Candidate's exact words from resume describing this project.",
-          "mistakes_in_description": "Lacks specific tech stack keywords and measurable accomplishments.",
-          "from_bullet": "Developed a Python application to track tasks and stored data in database.",
-          "to_bullet": "Engineered a Python and Flask task management web application integrated with PostgreSQL and JWT authentication.",
-          "suggested_better_version": "Add automated unit tests and host a live demo on Render or Vercel with a GitHub repo link in the resume."
-        }}
+        {
+          "project_name": "Project Name from Resume",
+          "candidate_original_description": "Candidate's summary as written in the resume.",
+          "context_feedback": "Explain how clearly the project conveys problem context, user impact, and engineering contribution without forcing new tech migrations.",
+          "from_bullet": "Original bullet point from resume.",
+          "to_bullet": "Rewritten bullet point preserving the candidate's actual stack, highlighting clarity, action verbs, and scope.",
+          "presentation_tip": "Advice on improving how this project is showcased (e.g., adding a live demo link, test counts, or repository documentation)."
+        }
       ],
       "certifications": {{
         "free_certifications": [
@@ -697,29 +697,29 @@ if st.session_state.ats_results:
 
             # TAB 3: Projects, Experience & Balanced Certs
             with tab3:
-                st.markdown("#### 🛠️ Project Description Review & Better Versions")
+                st.markdown("#### 🛠️ Project Description Review & Context Polish")
                 projects = rep.get("project_improvements", [])
                 if projects:
                     for proj in projects:
                         p_name = proj.get("project_name", "Project")
                         orig_desc = proj.get("candidate_original_description", "")
-                        mistakes = proj.get("mistakes_in_description", "")
+                        context_fb = proj.get("context_feedback", "")
                         from_b = proj.get("from_bullet", "")
                         to_b = proj.get("to_bullet", "")
-                        upgrade = proj.get("suggested_better_version", "")
+                        tip = proj.get("presentation_tip", "")
 
                         st.markdown(f"""
                         <div class="diff-card">
                             <h4 style="margin: 0; color: #38bdf8;">📌 {p_name}</h4>
-                            <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;"><b>Resume Description:</b> <i>"{orig_desc}"</i></p>
+                            <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;"><b>Resume Summary:</b> <i>"{orig_desc}"</i></p>
                             
-                            <p style="color: #fb7185; font-size: 0.85rem; margin: 0.3rem 0;"><b>⚠️ Identified Flaw:</b> {mistakes}</p>
+                            <p style="color: #f59e0b; font-size: 0.85rem; margin: 0.3rem 0;"><b>💡 Context & Clarity Review:</b> {context_fb}</p>
 
                             <b style="font-size: 0.85rem;">Bullet Point Improvement:</b><br>
                             <span class="text-before">❌ From: "{from_b}"</span><br>
                             <span class="text-after">✅ To: "{to_b}"</span><br><br>
 
-                            <p style="color: #4ade80; font-size: 0.85rem; margin: 0;"><b>💡 Suggested Better Version:</b> {upgrade}</p>
+                            <p style="color: #4ade80; font-size: 0.85rem; margin: 0;"><b>🎯 Presentation Tip:</b> {tip}</p>
                         </div>
                         """, unsafe_allow_html=True)
 
