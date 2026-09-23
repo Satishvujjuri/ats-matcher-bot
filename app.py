@@ -36,7 +36,7 @@ if "ats_results" not in st.session_state:
 if st.session_state.theme_mode == "Dark":
     theme_css = """
     <style>
-        .stApp { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .stApp { background-color: #0d1117 !important; color: #c9d1d9 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
         .hero-container {
             padding: 1.8rem 2rem;
@@ -54,27 +54,29 @@ if st.session_state.theme_mode == "Dark":
             -webkit-text-fill-color: transparent;
             margin: 0;
         }
-        .hero-subtitle { color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem; }
+        .hero-subtitle { color: #8b949e !important; font-size: 0.95rem; margin-top: 0.3rem; }
+
+        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown { color: #c9d1d9 !important; }
 
         .metric-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background-color: #161b22 !important;
+            border: 1px solid #30363d !important;
             border-radius: 12px;
             padding: 1.1rem;
             text-align: center;
         }
-        .metric-value { font-size: 1.7rem; font-weight: 700; color: #f0f6fc; }
-        .metric-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
-        
+        .metric-value { font-size: 1.7rem; font-weight: 700; color: #f0f6fc !important; }
+        .metric-label { font-size: 0.8rem; color: #8b949e !important; text-transform: uppercase; letter-spacing: 0.5px; }
+
         .diff-card {
-            background-color: #161b22;
-            border: 1px solid #2d333b;
+            background-color: #161b22 !important;
+            border: 1px solid #2d333b !important;
             border-radius: 8px;
             padding: 0.9rem 1.1rem;
             margin-bottom: 0.8rem;
         }
-        .text-before { color: #fb7185; font-size: 0.88rem; font-family: monospace; }
-        .text-after { color: #4ade80; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .text-before { color: #fb7185 !important; font-size: 0.88rem; font-family: monospace; }
+        .text-after { color: #4ade80 !important; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
 
         .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
         .badge-matched { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
@@ -83,32 +85,62 @@ if st.session_state.theme_mode == "Dark":
         .badge-free { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-paid { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 
+        /* Dark Mode Textarea */
         textarea, .stTextArea textarea {
             background-color: #161b22 !important;
             color: #f0f6fc !important;
             border: 1px solid #30363d !important;
             border-radius: 8px !important;
         }
-        [data-testid="stFileUploader"] {
-            background-color: #161b22 !important;
-            border: 1px dashed #30363d !important;
-            border-radius: 8px !important;
-            padding: 0.8rem !important;
-        }
-        [data-testid="stFileUploader"] * { color: #c9d1d9 !important; }
+
+        /* Dark Mode Theme Dropdown */
         div[data-baseweb="select"] > div {
             background-color: #161b22 !important;
             color: #f0f6fc !important;
-            border-color: #30363d !important;
+            border: 1px solid #30363d !important;
         }
-        .streamlit-expanderHeader {
+        div[data-baseweb="select"] * { color: #f0f6fc !important; }
+
+        /* Dark Mode File Uploader & Uploaded Items */
+        [data-testid="stFileUploader"] {
             background-color: #161b22 !important;
+            border: 1px dashed #30363d !important;
+            border-radius: 10px !important;
+            padding: 0.8rem !important;
+        }
+        [data-testid="stFileUploader"] section {
+            background-color: #161b22 !important;
+        }
+        [data-testid="stFileUploaderFile"] {
+            background-color: #21262d !important;
             border: 1px solid #30363d !important;
             border-radius: 8px !important;
         }
+        [data-testid="stFileUploaderFile"] * {
+            color: #f0f6fc !important;
+        }
+        [data-testid="stFileUploader"] * {
+            color: #c9d1d9 !important;
+        }
+
+        /* Dark Mode Expander */
+        div[data-testid="stExpander"] {
+            background-color: #161b22 !important;
+            border: 1px solid #30363d !important;
+            border-radius: 10px !important;
+        }
+        div[data-testid="stExpander"] details, div[data-testid="stExpander"] summary {
+            background-color: #161b22 !important;
+            color: #f0f6fc !important;
+        }
+        div[data-testid="stExpander"] summary * { color: #f0f6fc !important; }
+
+        button[data-baseweb="tab"] { color: #8b949e !important; }
+        button[data-baseweb="tab"][aria-selected="true"] { color: #38bdf8 !important; border-bottom-color: #38bdf8 !important; }
+
         div.stButton > button:first-child {
             background: linear-gradient(90deg, #2563eb, #3b82f6);
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 700;
             border: none;
             border-radius: 8px;
@@ -118,7 +150,7 @@ if st.session_state.theme_mode == "Dark":
 else:
     theme_css = """
     <style>
-        .stApp { background-color: #f8fafc; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .stApp { background-color: #f8fafc !important; color: #0f172a !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
         .hero-container {
             padding: 1.8rem 2rem;
@@ -126,7 +158,7 @@ else:
             border: 1px solid #cbd5e1;
             border-radius: 14px;
             margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         }
         .hero-title {
             font-size: 2.1rem;
@@ -136,31 +168,31 @@ else:
             -webkit-text-fill-color: transparent;
             margin: 0;
         }
-        .hero-subtitle { color: #475569; font-size: 0.95rem; margin-top: 0.3rem; font-weight: 500; }
+        .hero-subtitle { color: #475569 !important; font-size: 0.95rem; margin-top: 0.3rem; font-weight: 500; }
 
         h1, h2, h3, h4, h5, h6, p, label, .stMarkdown { color: #0f172a !important; }
 
         .metric-card {
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
             border-radius: 12px;
             padding: 1.1rem;
             text-align: center;
             box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
-        .metric-value { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
-        .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .metric-value { font-size: 1.7rem; font-weight: 700; color: #0f172a !important; }
+        .metric-label { font-size: 0.8rem; color: #64748b !important; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
 
         .diff-card {
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
             border-radius: 8px;
             padding: 0.9rem 1.1rem;
             margin-bottom: 0.8rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
-        .text-before { color: #be123c; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
-        .text-after { color: #15803d; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .text-before { color: #be123c !important; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .text-after { color: #15803d !important; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
 
         .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
         .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
@@ -169,29 +201,15 @@ else:
         .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
         .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
 
+        /* Light Mode Textarea */
         textarea, .stTextArea textarea {
             background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 8px !important;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
-        }
-        textarea::placeholder { color: #94a3b8 !important; }
-
-        [data-testid="stFileUploader"] {
-            background-color: #ffffff !important;
-            border: 2px dashed #cbd5e1 !important;
-            border-radius: 10px !important;
-            padding: 1rem !important;
-        }
-        [data-testid="stFileUploader"] section { background-color: #f8fafc !important; border-radius: 8px !important; }
-        [data-testid="stFileUploader"] * { color: #1e293b !important; }
-        [data-testid="stFileUploader"] button {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
         }
 
+        /* Light Mode Theme Dropdown */
         div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
             color: #0f172a !important;
@@ -199,16 +217,42 @@ else:
         }
         div[data-baseweb="select"] * { color: #0f172a !important; }
 
-        .streamlit-expanderHeader {
+        /* Light Mode File Uploader & Uploaded Items */
+        [data-testid="stFileUploader"] {
+            background-color: #ffffff !important;
+            border: 2px dashed #cbd5e1 !important;
+            border-radius: 10px !important;
+            padding: 0.9rem !important;
+        }
+        [data-testid="stFileUploader"] section {
+            background-color: #f8fafc !important;
+        }
+        [data-testid="stFileUploaderFile"] {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+        }
+        [data-testid="stFileUploaderFile"] * {
+            color: #0f172a !important;
+        }
+        [data-testid="stFileUploader"] * {
+            color: #1e293b !important;
+        }
+
+        /* Light Mode Expander */
+        div[data-testid="stExpander"] {
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 10px !important;
+        }
+        div[data-testid="stExpander"] details, div[data-testid="stExpander"] summary {
             background-color: #ffffff !important;
             color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
         }
-        button[data-baseweb="tab"] { color: #475569 !important; }
-        button[data-baseweb="tab"][aria-selected="true"] {
-            color: #0284c7 !important;
-            border-bottom-color: #0284c7 !important;
-        }
+        div[data-testid="stExpander"] summary * { color: #0f172a !important; }
+
+        button[data-baseweb="tab"] { color: #64748b !important; }
+        button[data-baseweb="tab"][aria-selected="true"] { color: #0284c7 !important; border-bottom-color: #0284c7 !important; }
 
         div.stButton > button:first-child {
             background: linear-gradient(90deg, #0284c7, #2563eb);
@@ -286,7 +330,7 @@ def extract_text(file_bytes: bytes, filename: str) -> tuple[str, bool]:
     return cleaned, len(cleaned) >= 50
 
 # ---------------------------------------------------------
-# Resilient API Call Engine
+# Resilient API Call with Intelligent 429 Quota Backoff
 # ---------------------------------------------------------
 def clean_json_string(raw: str) -> str:
     cleaned = raw.strip()
@@ -315,7 +359,19 @@ def generate_with_resilience(prompt: str) -> str:
             except Exception as e:
                 err_msg = str(e)
                 attempts_log.append(f"{model_name} (Attempt {attempt + 1}): {err_msg}")
-                sleep_time = (2 ** attempt) + random.uniform(1.0, 2.0)
+                
+                # Check if Google specified a retry delay for 429 quota exhaustion
+                retry_match = re.search(r"retry in ([\d\.]+)s", err_msg, re.IGNORECASE)
+                if not retry_match:
+                    retry_match = re.search(r"'retryDelay': '(\d+)s'", err_msg)
+                
+                if retry_match:
+                    sleep_time = float(retry_match.group(1)) + 2.0
+                elif "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+                    sleep_time = 25.0 + random.uniform(1.0, 3.0)
+                else:
+                    sleep_time = (2 ** attempt) + random.uniform(1.0, 2.0)
+
                 time.sleep(sleep_time)
 
     summary_err = "\n".join(attempts_log[-3:])
