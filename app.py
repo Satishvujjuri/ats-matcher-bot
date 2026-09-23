@@ -445,7 +445,7 @@ Return ONLY valid JSON matching this schema:
       ],
       "link_and_contact_audit": {{
         "current_placement": "LinkedIn and GitHub are listed as plain text at the bottom.",
-        "recommended_placement": "Place clean clickable handles (e.g. [github.com/username](https://github.com/username)) in the top header below name and contact info.",
+        "recommended_placement": "Place clean clickable handles in the top header below name and contact info.",
         "reasoning": "Recruiters and ATS parsers expect links in the top header for fast profile verification."
       }},
       "phrasing_and_grammar_fixes": [
@@ -479,19 +479,19 @@ Return ONLY valid JSON matching this schema:
         }}
       ],
       "project_improvements": [
-        {
+        {{
           "project_name": "Project Name from Resume",
-          "candidate_original_description": "Candidate's summary as written in the resume.",
-          "context_feedback": "Explain how clearly the project conveys problem context, user impact, and engineering contribution without forcing new tech migrations.",
+          "candidate_original_description": "Candidate summary as written in the resume.",
+          "context_feedback": "Explain how clearly the project conveys problem context and scope.",
           "from_bullet": "Original bullet point from resume.",
-          "to_bullet": "Rewritten bullet point preserving the candidate's actual stack, highlighting clarity, action verbs, and scope.",
-          "presentation_tip": "Advice on improving how this project is showcased (e.g., adding a live demo link, test counts, or repository documentation)."
-        }
+          "to_bullet": "Rewritten bullet point preserving actual stack with stronger action verbs.",
+          "presentation_tip": "Advice on showcasing this project (e.g. adding live demo or metrics)."
+        }}
       ],
       "certifications": {{
         "free_certifications": [
           {{"title": "freeCodeCamp Back End Development and APIs", "url": "[https://www.freecodecamp.org/learn/back-end-development-and-apis/](https://www.freecodecamp.org/learn/back-end-development-and-apis/)", "desc": "Covers Node.js, Express, and microservice fundamentals."}},
-          {{"title": "CS50 Introduction to Computer Science (edX audit)", "url": "[https://www.edx.org/cs50](https://www.edx.org/cs50)", "desc": "Solid foundation in data structures, algorithms, and memory management."}}
+          {{"title": "CS50 Introduction to Computer Science", "url": "[https://www.edx.org/cs50](https://www.edx.org/cs50)", "desc": "Solid foundation in data structures, algorithms, and memory management."}}
         ],
         "paid_certification": {{
           "title": "AWS Certified Solutions Architect – Associate (SAA-C03)",
@@ -508,8 +508,8 @@ Return ONLY valid JSON matching this schema:
             clean_json = clean_json_string(raw_response)
             data = json.loads(clean_json)
             st.session_state.ats_results = {
-                "candidates": data.get("candidates", []),
-                "reports": data.get("reports", [])
+                "candidates": data.get("candidates", []) if isinstance(data, dict) else [],
+                "reports": data.get("reports", []) if isinstance(data, dict) else []
             }
         except Exception as e:
             st.error(f"Analysis interrupted: {e}")
@@ -539,7 +539,7 @@ if st.session_state.ats_results:
         with m_col2:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #38bdf8;">{top_candidate.get('name', 'N/A')[:14]}</div>
+                <div class="metric-value" style="color: #38bdf8;">{str(top_candidate.get('name', 'N/A'))[:14]}</div>
                 <div class="metric-label">Top Candidate</div>
             </div>
             """, unsafe_allow_html=True)
@@ -602,6 +602,8 @@ if st.session_state.ats_results:
     st.markdown("### 📋 Candidate Evaluation Drill-Down")
 
     for rep in reports:
+        if not isinstance(rep, dict):
+            continue
         name = rep.get("name", "Candidate")
         score = rep.get("score", 0)
         badge_style = "badge-matched" if score >= 75 else "badge-partial" if score >= 50 else "badge-missing"
@@ -621,48 +623,66 @@ if st.session_state.ats_results:
                     st.markdown(f"**Fit Status:** <span class='badge {badge_style}'>{badge_label} ({score}%)</span>", unsafe_allow_html=True)
                     st.markdown("<br>**📈 Weighted Score Breakdown:**", unsafe_allow_html=True)
                     sb = rep.get("score_breakdown", {})
-                    for k, v in sb.items():
-                        st.write(f"• **{k.title()}**: `{v}`")
+                    if isinstance(sb, dict):
+                        for k, v in sb.items():
+                            st.write(f"• **{str(k).title()}**: `{v}`")
 
                     st.markdown("**🎯 Technical Skill Alignment:**")
                     skills = rep.get("skills", {})
-                    matched_html = "".join([f"<span class='badge badge-matched'>{s}</span>" for s in skills.get('matched', [])]) or "<i>None</i>"
-                    partial_html = "".join([f"<span class='badge badge-partial'>{s}</span>" for s in skills.get('partial', [])]) or "<i>None</i>"
-                    missing_html = "".join([f"<span class='badge badge-missing'>{s}</span>" for s in skills.get('missing', [])]) or "<i>None</i>"
+                    if isinstance(skills, dict):
+                        matched_list = skills.get('matched', [])
+                        partial_list = skills.get('partial', [])
+                        missing_list = skills.get('missing', [])
+                        
+                        matched_html = "".join([f"<span class='badge badge-matched'>{s}</span>" for s in (matched_list if isinstance(matched_list, list) else [])]) or "<i>None</i>"
+                        partial_html = "".join([f"<span class='badge badge-partial'>{s}</span>" for s in (partial_list if isinstance(partial_list, list) else [])]) or "<i>None</i>"
+                        missing_html = "".join([f"<span class='badge badge-missing'>{s}</span>" for s in (missing_list if isinstance(missing_list, list) else [])]) or "<i>None</i>"
 
-                    st.markdown(f"**Matched:**<br>{matched_html}", unsafe_allow_html=True)
-                    st.markdown(f"**Partial:**<br>{partial_html}", unsafe_allow_html=True)
-                    st.markdown(f"**Missing:**<br>{missing_html}", unsafe_allow_html=True)
+                        st.markdown(f"**Matched:**<br>{matched_html}", unsafe_allow_html=True)
+                        st.markdown(f"**Partial:**<br>{partial_html}", unsafe_allow_html=True)
+                        st.markdown(f"**Missing:**<br>{missing_html}", unsafe_allow_html=True)
 
                 with t1_col2:
                     st.markdown("**⏳ Experience Alignment:**")
-                    st.info(rep.get('experience_match', 'N/A'))
+                    st.info(str(rep.get('experience_match', 'N/A')))
 
                     st.markdown("**🎓 Education Fit:**")
-                    st.info(rep.get('education_match', 'N/A'))
+                    st.info(str(rep.get('education_match', 'N/A')))
 
                     st.markdown("**⚠️ Identified Gaps:**")
-                    for gap in rep.get("gaps", []):
-                        st.markdown(f"- {gap}")
+                    gaps_list = rep.get("gaps", [])
+                    if isinstance(gaps_list, list):
+                        for gap in gaps_list:
+                            st.markdown(f"- {gap}")
+                    else:
+                        st.markdown(f"- {gaps_list}")
 
             # TAB 2: Resume Hygiene, Links & Precise From➔To Fixes
             with tab2:
                 st.markdown("#### 🔗 Hyperlinks & Profile Placement Audit")
                 link_audit = rep.get("link_and_contact_audit", {})
+                if not isinstance(link_audit, dict):
+                    link_audit = {}
+                c_place = link_audit.get('current_placement', 'N/A')
+                r_place = link_audit.get('recommended_placement', 'N/A')
+                l_reason = link_audit.get('reasoning', '')
+
                 st.markdown(f"""
                 <div class="diff-card">
                     <span style="font-weight: 700; color: #fb7185;">❌ Current Placement:</span><br>
-                    <span class="text-before">{link_audit.get('current_placement', 'N/A')}</span><br><br>
+                    <span class="text-before">{c_place}</span><br><br>
                     <span style="font-weight: 700; color: #4ade80;">✅ Recommended Placement:</span><br>
-                    <span class="text-after">{link_audit.get('recommended_placement', 'N/A')}</span>
-                    <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>Why this matters:</b> {link_audit.get('reasoning', '')}</p>
+                    <span class="text-after">{r_place}</span>
+                    <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>Why this matters:</b> {l_reason}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
                 st.markdown("#### ✍️ Granular 'From ➔ To' Phrasing & Grammar Transformations")
                 fixes = rep.get("phrasing_and_grammar_fixes", [])
-                if fixes:
+                if isinstance(fixes, list) and fixes:
                     for f in fixes:
+                        if not isinstance(f, dict):
+                            continue
                         cat = f.get("category", "Refinement")
                         from_txt = f.get("from_text", "")
                         to_txt = f.get("to_text", "")
@@ -682,8 +702,10 @@ if st.session_state.ats_results:
 
                 st.markdown("#### 🏷️ Recommended Role Title Transformations")
                 roles = rep.get("role_upgrade_suggestions", [])
-                if roles:
+                if isinstance(roles, list) and roles:
                     for r in roles:
+                        if not isinstance(r, dict):
+                            continue
                         curr = r.get('current_title', 'Current')
                         rec = r.get('recommended_title', 'Recommended')
                         reason = r.get('reasoning', '')
@@ -699,8 +721,10 @@ if st.session_state.ats_results:
             with tab3:
                 st.markdown("#### 🛠️ Project Description Review & Context Polish")
                 projects = rep.get("project_improvements", [])
-                if projects:
+                if isinstance(projects, list) and projects:
                     for proj in projects:
+                        if not isinstance(proj, dict):
+                            continue
                         p_name = proj.get("project_name", "Project")
                         orig_desc = proj.get("candidate_original_description", "")
                         context_fb = proj.get("context_feedback", "")
@@ -712,21 +736,22 @@ if st.session_state.ats_results:
                         <div class="diff-card">
                             <h4 style="margin: 0; color: #38bdf8;">📌 {p_name}</h4>
                             <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;"><b>Resume Summary:</b> <i>"{orig_desc}"</i></p>
-                            
                             <p style="color: #f59e0b; font-size: 0.85rem; margin: 0.3rem 0;"><b>💡 Context & Clarity Review:</b> {context_fb}</p>
-
                             <b style="font-size: 0.85rem;">Bullet Point Improvement:</b><br>
                             <span class="text-before">❌ From: "{from_b}"</span><br>
                             <span class="text-after">✅ To: "{to_b}"</span><br><br>
-
                             <p style="color: #4ade80; font-size: 0.85rem; margin: 0;"><b>🎯 Presentation Tip:</b> {tip}</p>
                         </div>
                         """, unsafe_allow_html=True)
+                else:
+                    st.info("No project description improvements flagged for this candidate.")
 
                 st.markdown("#### 💼 Internship & Work Experience Polish")
                 exp_fixes = rep.get("work_experience_improvements", [])
-                if exp_fixes:
+                if isinstance(exp_fixes, list) and exp_fixes:
                     for ef in exp_fixes:
+                        if not isinstance(ef, dict):
+                            continue
                         comp = ef.get("company_or_role", "Experience")
                         flaw = ef.get("mistake_identified", "")
                         fb = ef.get("from_bullet", "")
@@ -744,26 +769,33 @@ if st.session_state.ats_results:
 
                 st.markdown("#### 📜 Targeted Certifications")
                 certs_data = rep.get("certifications", {})
+                if not isinstance(certs_data, dict):
+                    certs_data = {}
                 free_certs = certs_data.get("free_certifications", [])
                 paid_cert = certs_data.get("paid_certification", {})
 
                 c_col1, c_col2 = st.columns([1, 1], gap="medium")
                 with c_col1:
                     st.markdown("##### 🟢 2 Recommended Free Certifications")
-                    for fc in free_certs[:2]:
-                        title = fc.get("title", "Free Certification")
-                        url = fc.get("url", "#")
-                        desc = fc.get("desc", "")
-                        st.markdown(f"""
-                        <div class="diff-card">
-                            <span class="badge badge-free">FREE</span> <b><a href="{url}" target="_blank" style="text-decoration: none; color: inherit;">{title}</a></b>
-                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{desc}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                    if isinstance(free_certs, list) and free_certs:
+                        for fc in free_certs[:2]:
+                            if not isinstance(fc, dict):
+                                continue
+                            fc_title = fc.get("title", "Free Certification")
+                            fc_url = fc.get("url", "#")
+                            fc_desc = fc.get("desc", "")
+                            st.markdown(f"""
+                            <div class="diff-card">
+                                <span class="badge badge-free">FREE</span> <b><a href="{fc_url}" target="_blank" style="text-decoration: none; color: inherit;">{fc_title}</a></b>
+                                <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{fc_desc}</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.write("No specific free certifications identified.")
 
                 with c_col2:
                     st.markdown("##### 🟡 1 Recommended Paid / Industry Credential")
-                    if paid_cert:
+                    if isinstance(paid_cert, dict) and paid_cert:
                         p_title = paid_cert.get("title", "Industry Certification")
                         p_cost = paid_cert.get("cost", "Paid")
                         p_desc = paid_cert.get("desc", "")
@@ -773,3 +805,5 @@ if st.session_state.ats_results:
                             <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{p_desc}</p>
                         </div>
                         """, unsafe_allow_html=True)
+                    else:
+                        st.write("No specific paid credential required.")
