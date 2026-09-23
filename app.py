@@ -31,12 +31,14 @@ if "ats_results" not in st.session_state:
     st.session_state.ats_results = None
 
 # ---------------------------------------------------------
-# Dual Theme Dynamic Styling Engine
+# Dual Theme Dynamic Styling Engine (Streamlit Native Overrides)
 # ---------------------------------------------------------
 if st.session_state.theme_mode == "Dark":
     theme_css = """
     <style>
         .stApp { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        /* Hero Container */
         .hero-container {
             padding: 1.8rem 2rem;
             background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
@@ -54,6 +56,8 @@ if st.session_state.theme_mode == "Dark":
             margin: 0;
         }
         .hero-subtitle { color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem; }
+
+        /* Metric & Diff Cards */
         .metric-card {
             background-color: #161b22;
             border: 1px solid #30363d;
@@ -63,6 +67,7 @@ if st.session_state.theme_mode == "Dark":
         }
         .metric-value { font-size: 1.7rem; font-weight: 700; color: #f0f6fc; }
         .metric-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+        
         .diff-card {
             background-color: #161b22;
             border: 1px solid #2d333b;
@@ -72,25 +77,44 @@ if st.session_state.theme_mode == "Dark":
         }
         .text-before { color: #fb7185; font-size: 0.88rem; font-family: monospace; }
         .text-after { color: #4ade80; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+
+        /* Badges */
         .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
         .badge-matched { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         .badge-partial { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
         .badge-missing { background-color: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
         .badge-free { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-paid { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        div.stButton > button:first-child {
-            background: linear-gradient(90deg, #2563eb, #3b82f6);
-            color: #ffffff;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
+
+        /* Streamlit Native Inputs (Dark Mode) */
+        textarea, .stTextArea textarea {
+            background-color: #161b22 !important;
+            color: #f0f6fc !important;
+            border: 1px solid #30363d !important;
+            border-radius: 8px !important;
+        }
+        [data-testid="stFileUploader"] {
+            background-color: #161b22 !important;
+            border: 1px dashed #30363d !important;
+            border-radius: 8px !important;
+            padding: 0.8rem !important;
+        }
+        [data-testid="stFileUploader"] * {
+            color: #c9d1d9 !important;
+        }
+        div[data-baseweb="select"] > div {
+            background-color: #161b22 !important;
+            color: #f0f6fc !important;
+            border-color: #30363d !important;
         }
     </style>
     """
 else:
     theme_css = """
     <style>
-        .stApp { background-color: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .stApp { background-color: #f8fafc; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        /* Hero Container */
         .hero-container {
             padding: 1.8rem 2rem;
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
@@ -107,44 +131,112 @@ else:
             -webkit-text-fill-color: transparent;
             margin: 0;
         }
-        .hero-subtitle { color: #64748b; font-size: 0.95rem; margin-top: 0.3rem; }
+        .hero-subtitle { color: #475569; font-size: 0.95rem; margin-top: 0.3rem; font-weight: 500; }
+
+        /* Headers & Labels */
+        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {
+            color: #0f172a !important;
+        }
+
+        /* Metric & Diff Cards */
         .metric-card {
             background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
             border-radius: 12px;
             padding: 1.1rem;
             text-align: center;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
         .metric-value { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
-        .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
         .diff-card {
             background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 0.9rem 1.1rem;
             margin-bottom: 0.8rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
-        .text-before { color: #e11d48; font-size: 0.88rem; font-family: monospace; }
-        .text-after { color: #16a34a; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .text-before { color: #be123c; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .text-after { color: #15803d; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+
+        /* Badges */
         .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
-        .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-        .badge-partial { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-        .badge-missing { background-color: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
-        .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-        .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .badge-partial { background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+        .badge-missing { background-color: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; }
+        .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
+        .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+
+        /* Streamlit Native Inputs (Light Mode Overrides) */
+        textarea, .stTextArea textarea {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
+        }
+        textarea::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        /* File Uploader Container & Dropzone */
+        [data-testid="stFileUploader"] {
+            background-color: #ffffff !important;
+            border: 2px dashed #cbd5e1 !important;
+            border-radius: 10px !important;
+            padding: 1rem !important;
+        }
+        [data-testid="stFileUploader"] section {
+            background-color: #f8fafc !important;
+            border-radius: 8px !important;
+        }
+        [data-testid="stFileUploader"] * {
+            color: #1e293b !important;
+        }
+        [data-testid="stFileUploader"] button {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        /* Selectbox (Theme dropdown) */
+        div[data-baseweb="select"] > div {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        div[data-baseweb="select"] * {
+            color: #0f172a !important;
+        }
+
+        /* Expanders & Tabs */
+        .streamlit-expanderHeader {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        button[data-baseweb="tab"] {
+            color: #475569 !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            color: #0284c7 !important;
+            border-bottom-color: #0284c7 !important;
+        }
+
+        /* Run Button */
         div.stButton > button:first-child {
             background: linear-gradient(90deg, #0284c7, #2563eb);
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 700;
             border: none;
             border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
         }
     </style>
     """
 st.markdown(theme_css, unsafe_allow_html=True)
-
 # ---------------------------------------------------------
 # Secrets & API Key Resolution
 # ---------------------------------------------------------
@@ -219,11 +311,12 @@ def clean_json_string(raw: str) -> str:
     return cleaned.strip()
 
 def generate_with_resilience(prompt: str) -> str:
-    candidate_models = ["gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3-flash"]
-    last_exception = None
+    # Use only confirmed, active models for your API key
+    candidate_models = ["gemini-3.6-flash"]
+    attempts_log = []
 
     for model_name in candidate_models:
-        for attempt in range(3):
+        for attempt in range(4):
             try:
                 response = ai_client.models.generate_content(
                     model=model_name,
@@ -236,12 +329,15 @@ def generate_with_resilience(prompt: str) -> str:
                 if response and response.text:
                     return response.text
             except Exception as e:
-                last_exception = e
-                sleep_time = (2 ** attempt) + random.uniform(0.5, 1.5)
+                err_msg = str(e)
+                attempts_log.append(f"{model_name} (Attempt {attempt + 1}): {err_msg}")
+                # Exponential backoff with jitter to recover from rate limits
+                sleep_time = (2 ** attempt) + random.uniform(1.0, 2.5)
                 time.sleep(sleep_time)
-                continue
 
-    raise RuntimeError(f"All model endpoints are busy. Last error: {last_exception}")
+    # If all attempts fail, show the exact reason from each attempt
+    summary_err = "\n".join(attempts_log[-3:])
+    raise RuntimeError(f"API request could not complete after multiple retries:\n{summary_err}")
 
 # ---------------------------------------------------------
 # UI Header & Theme Switcher
