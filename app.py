@@ -98,14 +98,13 @@ def clean_json_string(raw: str) -> str:
     return cleaned.strip()
 
 def generate_with_resilience(prompt: str) -> str:
-    # Use the active Gemini 3.x models
+    # Set to active Gemini 3.x production models
     candidate_models = [
+        "gemini-3.6-flash",
         "gemini-3.1-pro-preview",
-        "gemini-3.1-flash-preview",
-        "gemini-2.5-flash"
+        "gemini-3-flash"
     ]
     last_exception = None
-
 
     for model_name in candidate_models:
         for attempt in range(3):
@@ -122,7 +121,6 @@ def generate_with_resilience(prompt: str) -> str:
                     return response.text
             except Exception as e:
                 last_exception = e
-                # Exponential backoff with random jitter to absorb simultaneous traffic
                 sleep_time = (2 ** attempt) + random.uniform(0.5, 1.5)
                 time.sleep(sleep_time)
                 continue
