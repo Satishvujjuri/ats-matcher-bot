@@ -7,12 +7,12 @@ import random
 import zipfile
 import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler
-import cgi
+import email
+from email import policy
 import pypdf
 from google import genai
 from google.genai import types
 
-# Initialize Gemini Client from environment variable
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 def get_gemini_client():
@@ -165,7 +165,7 @@ Return ONLY valid JSON matching this schema:
   ]
 }}
 """
-    for attempt in range(3):
+    for attempt in range(4):
         try:
             resp = client.models.generate_content(
                 model="gemini-3.6-flash",
@@ -181,45 +181,55 @@ Return ONLY valid JSON matching this schema:
         except Exception as e:
             err = str(e)
             if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                time.sleep(25.0)
+                retry_match = re.search(r"retry in ([\d\.]+)s", err, re.IGNORECASE)
+                sleep_sec = float(retry_match.group(1)) + 1.0 if retry_match else 25.0
+                time.sleep(sleep_sec)
             else:
-                time.sleep((2 ** attempt) + 1.0)
+                time.sleep((2 ** attempt) + random.uniform(0.5, 1.5))
     raise RuntimeError("Failed to obtain response from Gemini API after retries.")
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             content_type = self.headers.get('content-type', '')
+            content_length = int(self.headers.get('content-length', 0))
+            body_bytes = self.rfile.read(content_length)
+
             if 'multipart/form-data' not in content_type:
                 self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(b'{"error": "Multipart form data required"}')
                 return
 
-            environ = {'REQUEST_METHOD': 'POST', 'CONTENT_TYPE': self.headers['Content-Type']}
-            form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ=environ)
+            # Native, deprecation-free email parser for multipart payload
+            msg_data = f"Content-Type: {content_type}\r\n\r\n".encode('latin-1') + body_bytes
+            parsed_msg = email.message_from_bytes(msg_data, policy=policy.default)
 
-            jd = form.getvalue('jd', '')
-            if not jd:
+            jd = ""
+            payload = ""
+
+            for part in parsed_msg.iter_parts():
+                cd = part.get("Content-Disposition", "")
+                if 'name="jd"' in cd:
+                    jd = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                elif 'filename=' in cd:
+                    filename = part.get_filename() or "uploaded_file"
+                    file_bytes = part.get_payload(decode=True)
+                    text, valid = extract_text(file_bytes, filename)
+                    if valid:
+                        payload += f"\n--- CANDIDATE: {filename} ---\n{text[:11000]}\n"
+
+            if not jd.strip():
                 self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(b'{"error": "Job description is missing"}')
                 return
 
-            payload = ""
-            files = form['files'] if 'files' in form else []
-            if not isinstance(files, list):
-                files = [files]
-
-            for item in files:
-                if item.file and item.filename:
-                    fbytes = item.file.read()
-                    text, valid = extract_text(fbytes, item.filename)
-                    if valid:
-                        payload += f"\n--- CANDIDATE: {item.filename} ---\n{text[:11000]}\n"
-
             if not payload.strip():
                 self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(b'{"error": "No valid text could be extracted from uploaded resumes"}')
                 return
