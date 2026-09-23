@@ -24,10 +24,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom SaaS-style Dark Theme CSS
+# Custom Glassmorphic Dark UI Theme
 st.markdown("""
 <style>
-    /* Global Background & Typography */
     .stApp {
         background-color: #0d1117;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -79,7 +78,7 @@ st.markdown("""
         margin-top: 0.2rem;
     }
 
-    /* Skill Badges */
+    /* Skill & Category Badges */
     .badge {
         display: inline-block;
         padding: 0.22rem 0.65rem;
@@ -103,15 +102,37 @@ st.markdown("""
         color: #fb7185;
         border: 1px solid rgba(244, 63, 94, 0.3);
     }
-
-    /* Expander Container */
-    .streamlit-expanderHeader {
-        background-color: #161b22 !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
+    .badge-cert {
+        background-color: rgba(168, 85, 247, 0.15);
+        color: #c084fc;
+        border: 1px solid rgba(168, 85, 247, 0.3);
     }
 
-    /* Primary Run Button */
+    /* Audit Alert Cards */
+    .audit-box {
+        background-color: #161b22;
+        border-left: 4px solid #38bdf8;
+        border-radius: 6px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.8rem;
+    }
+    .audit-box-warn {
+        border-left-color: #f59e0b;
+    }
+    .audit-box-danger {
+        border-left-color: #f43f5e;
+    }
+
+    /* Custom Project Before/After Cards */
+    .rewrite-card {
+        background-color: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 8px;
+        padding: 0.9rem;
+        margin-bottom: 0.8rem;
+    }
+
+    /* Buttons */
     div.stButton > button:first-child {
         background: linear-gradient(90deg, #2563eb, #3b82f6);
         color: #ffffff;
@@ -231,8 +252,8 @@ def generate_with_resilience(prompt: str) -> str:
 # ---------------------------------------------------------
 st.markdown("""
 <div class="hero-container">
-    <h1 class="hero-title">⚡ MatchPro ATS Intelligence Engine</h1>
-    <p class="hero-subtitle">Batch Candidate Benchmarking • Core CS Gap Analysis • Production Fit Roadmaps</p>
+    <h1 class="hero-title">⚡ MatchPro ATS Intelligence & Resume Auditor</h1>
+    <p class="hero-subtitle">Multi-Resume Benchmarking • Hygiene & Link Audit • Role & STAR Project Overhaul</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -247,7 +268,7 @@ with col_left:
         label="JD Input",
         label_visibility="collapsed",
         height=280,
-        placeholder="Paste full job requirements, mandatory languages, frameworks, minimum experience, and core computer science fundamentals..."
+        placeholder="Paste target job requirements, mandatory tools, frameworks, minimum experience, and qualifications..."
     )
 
 with col_right:
@@ -263,7 +284,7 @@ with col_right:
 
 col_btn, col_reset = st.columns([4, 1])
 with col_btn:
-    analyze_btn = st.button("🚀 Run Comparative Benchmark", use_container_width=True)
+    analyze_btn = st.button("🚀 Run ATS Benchmark & Resume Audit", use_container_width=True)
 with col_reset:
     if st.button("🧹 Reset", use_container_width=True):
         st.session_state.ats_results = None
@@ -283,7 +304,7 @@ if analyze_btn:
         st.warning("⚠️ Maximum 5 resumes allowed per batch to preserve API rate limits.")
         st.stop()
 
-    with st.spinner("⚡ Parsing resumes and running comparative intelligence analysis..."):
+    with st.spinner("⚡ Running dual-pass evaluation: ATS Matching + Resume Hygiene & Project Audit..."):
         payload = ""
         skipped_files = []
 
@@ -295,7 +316,7 @@ if analyze_btn:
                 skipped_files.append(file.name)
                 continue
             
-            payload += f"\n--- CANDIDATE: {file.name} ---\n{extracted_text[:10000]}\n"
+            payload += f"\n--- CANDIDATE: {file.name} ---\n{extracted_text[:11000]}\n"
 
         if skipped_files:
             st.error(f"⚠️ Unreadable/scanned documents detected: {', '.join(skipped_files)}.")
@@ -304,8 +325,8 @@ if analyze_btn:
             st.stop()
 
         prompt = f"""
-You are an expert ATS recruitment evaluator.
-Analyze each candidate strictly against the Job Description.
+You are an elite ATS recruitment architect and professional executive resume editor.
+Analyze each candidate strictly against the Job Description AND conduct a deep resume quality audit.
 
 JOB DESCRIPTION:
 {jd_input}
@@ -318,37 +339,63 @@ Return ONLY valid JSON matching this schema:
   "candidates": [
     {{
       "name": "Candidate Name or Filename",
-      "score": 51
+      "score": 78
     }}
   ],
   "reports": [
     {{
       "name": "Candidate Name",
-      "score": 51,
-      "score_category": "Weak Match",
+      "score": 78,
+      "score_category": "Strong Match",
       "score_breakdown": {{
-        "skills": "13.1 / 40.0",
-        "experience": "20.0 / 25.0",
-        "projects": "5.0 / 15.0",
-        "education": "10.0 / 10.0",
-        "keywords": "2.5 / 10.0"
+        "skills": "32.0 / 40.0",
+        "experience": "22.0 / 25.0",
+        "projects": "11.0 / 15.0",
+        "education": "9.0 / 10.0",
+        "keywords": "8.0 / 10.0"
       }},
       "skills": {{
-        "matched": ["Python", "Git", "SQL"],
-        "partial": ["PostgreSQL"],
-        "missing": ["REST APIs", "CI/CD", "Docker", "AWS", "FastAPI"]
+        "matched": ["Python", "Docker", "SQL", "Git"],
+        "partial": ["Kubernetes"],
+        "missing": ["AWS ECS", "Kafka", "Redis"]
       }},
-      "experience_match": "Required: 5+ years | Candidate: 4.0 years | Status: PARTIALLY_MATCHED",
-      "education_match": "Required: Bachelor's in CS | Candidate: B.Tech in CS | Status: Matched",
+      "experience_match": "Required: 3+ years | Candidate: 3.5 years | Status: MATCHED",
+      "education_match": "Required: B.Tech in CS/IT | Candidate: B.Tech CSE | Status: MATCHED",
       "gaps": [
-        "REST APIs (HIGH PRIORITY): Mandatory requirement needed for backend APIs.",
-        "Docker & CI/CD (HIGH PRIORITY): Essential for deployments and automated testing.",
-        "AWS (MEDIUM PRIORITY): Cloud hosting experience required."
+        "Distributed message streaming (Kafka) is missing from production background.",
+        "No in-memory caching (Redis) mentioned in backend workflows."
+      ],
+      "hygiene_audit": {{
+        "grammar_and_typos": [
+          "Spelled 'PostgreSQL' as 'Postgress' in Skills section.",
+          "Inconsistent bullet capitalization in Experience section."
+        ],
+        "link_audit": "GitHub and LinkedIn links are present, but listed as raw un-clickable text. Move clean hyperlinks to the header.",
+        "passive_phrasing_flags": [
+          "Found passive phrase: 'Was responsible for building APIs' -> Change to 'Architected & deployed RESTful microservices'."
+        ]
+      }},
+      "role_upgrade_suggestions": [
+        {{
+          "current_title": "Software Developer Intern",
+          "recommended_title": "Junior Backend & Cloud Engineer",
+          "reasoning": "Positions you closer to the target cloud infrastructure responsibilities in this JD."
+        }}
+      ],
+      "project_improvements": [
+        {{
+          "project_title": "E-Commerce Microservices",
+          "current_bullet": "Made backend endpoints and connected database.",
+          "star_rewritten_bullet": "Engineered 14+ high-throughput FastAPI endpoints connected to PostgreSQL, reducing P95 query latency by 32% via Redis caching."
+        }}
+      ],
+      "recommended_certifications": [
+        "AWS Certified Solutions Architect – Associate (SAA-C03)",
+        "Certified Kubernetes Application Developer (CKAD)"
       ],
       "course_suggestions": [
-        {{"title": "FastAPI & REST APIs Mastery", "url": "[https://www.udemy.com/topic/fastapi/](https://www.udemy.com/topic/fastapi/)", "desc": "Bridge Python fundamentals into production-ready API design."}},
-        {{"title": "Docker & Kubernetes: The Complete Guide", "url": "[https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/](https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/)", "desc": "Master image builds and CI/CD pipelines."}},
-        {{"title": "AWS Cloud Technical Essentials", "url": "[https://www.coursera.org/learn/aws-cloud-technical-essentials](https://www.coursera.org/learn/aws-cloud-technical-essentials)", "desc": "Hands-on mastery of EC2, S3, and cloud infrastructure."}}
+        {{"title": "Apache Kafka for Beginners", "url": "[https://www.udemy.com/course/apache-kafka/](https://www.udemy.com/course/apache-kafka/)", "desc": "Master distributed event streaming and message brokers."}},
+        {{"title": "AWS Cloud Technical Essentials", "url": "[https://www.coursera.org/learn/aws-cloud-technical-essentials](https://www.coursera.org/learn/aws-cloud-technical-essentials)", "desc": "Hands-on mastery of ECS, EC2, and S3."}}
       ]
     }}
   ]
@@ -366,7 +413,7 @@ Return ONLY valid JSON matching this schema:
             st.error(f"Analysis interrupted: {e}")
 
 # ---------------------------------------------------------
-# Analytics & Candidate Presentation Layer
+# Analytics & Presentation Layer
 # ---------------------------------------------------------
 if st.session_state.ats_results:
     results = st.session_state.ats_results
@@ -392,7 +439,7 @@ if st.session_state.ats_results:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value" style="color: #38bdf8;">{top_candidate.get('name', 'N/A')[:14]}</div>
-                <div class="metric-label">Top Profile</div>
+                <div class="metric-label">Top Benchmark</div>
             </div>
             """, unsafe_allow_html=True)
         with m_col3:
@@ -406,7 +453,7 @@ if st.session_state.ats_results:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value">{avg_score}%</div>
-                <div class="metric-label">Average Match</div>
+                <div class="metric-label">Batch Average</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -451,8 +498,8 @@ if st.session_state.ats_results:
             mime="text/csv"
         )
 
-    # Detailed Candidate Reports with Pill Badges
-    st.markdown("### 📋 Candidate Evaluation Drill-Down")
+    # Detailed Candidate Reports with Tabs
+    st.markdown("### 📋 Candidate Intelligence & Resume Audits")
 
     for rep in reports:
         name = rep.get("name", "Candidate")
@@ -460,43 +507,120 @@ if st.session_state.ats_results:
         badge_style = "badge-matched" if score >= 75 else "badge-partial" if score >= 50 else "badge-missing"
         badge_label = "Strong Match" if score >= 75 else "Moderate Match" if score >= 50 else "Weak Match"
 
-        with st.expander(f"👤 {name} — Score: {score}%", expanded=True):
-            r_col1, r_col2 = st.columns([1, 1], gap="medium")
+        with st.expander(f"👤 {name} — Score: {score}% ({badge_label})", expanded=True):
+            tab1, tab2, tab3 = st.tabs(["🎯 ATS Fit & Gaps", "🔍 Resume Hygiene & Links", "🚀 Role & Project Upgrades"])
 
-            with r_col1:
-                st.markdown(f"**Fit Status:** <span class='badge {badge_style}'>{badge_label} ({score}%)</span>", unsafe_allow_html=True)
+            # TAB 1: ATS Scoring & Skills
+            with tab1:
+                t1_col1, t1_col2 = st.columns([1, 1], gap="medium")
+                with t1_col1:
+                    st.markdown(f"**Fit Status:** <span class='badge {badge_style}'>{badge_label} ({score}%)</span>", unsafe_allow_html=True)
+                    st.markdown("<br>**📈 Weighted Score Breakdown:**", unsafe_allow_html=True)
+                    sb = rep.get("score_breakdown", {})
+                    for k, v in sb.items():
+                        st.write(f"• **{k.title()}**: `{v}`")
+
+                    st.markdown("**🎯 Skill Alignments:**")
+                    skills = rep.get("skills", {})
+                    matched_html = "".join([f"<span class='badge badge-matched'>{s}</span>" for s in skills.get('matched', [])]) or "<i>None</i>"
+                    partial_html = "".join([f"<span class='badge badge-partial'>{s}</span>" for s in skills.get('partial', [])]) or "<i>None</i>"
+                    missing_html = "".join([f"<span class='badge badge-missing'>{s}</span>" for s in skills.get('missing', [])]) or "<i>None</i>"
+
+                    st.markdown(f"**Matched:**<br>{matched_html}", unsafe_allow_html=True)
+                    st.markdown(f"**Partial:**<br>{partial_html}", unsafe_allow_html=True)
+                    st.markdown(f"**Missing:**<br>{missing_html}", unsafe_allow_html=True)
+
+                with t1_col2:
+                    st.markdown("**⏳ Experience Alignment:**")
+                    st.info(rep.get('experience_match', 'N/A'))
+
+                    st.markdown("**🎓 Education Fit:**")
+                    st.info(rep.get('education_match', 'N/A'))
+
+                    st.markdown("**⚠️ Identified Critical Gaps:**")
+                    for gap in rep.get("gaps", []):
+                        st.markdown(f"- {gap}")
+
+            # TAB 2: Hygiene, Grammar & Links
+            with tab2:
+                hygiene = rep.get("hygiene_audit", {})
                 
-                st.markdown("<br>**📈 Weighted Score Breakdown:**", unsafe_allow_html=True)
-                sb = rep.get("score_breakdown", {})
-                for k, v in sb.items():
-                    st.write(f"• **{k.title()}**: `{v}`")
+                st.markdown("#### 🔗 Hyperlinks & Contact Placement")
+                link_feedback = hygiene.get("link_audit", "No link issues detected.")
+                st.markdown(f"""
+                <div class="audit-box">
+                    {link_feedback}
+                </div>
+                """, unsafe_allow_html=True)
 
-                st.markdown("**🎯 Skill Alignments:**")
-                skills = rep.get("skills", {})
-                
-                matched_html = "".join([f"<span class='badge badge-matched'>{s}</span>" for s in skills.get('matched', [])]) or "<i>None</i>"
-                partial_html = "".join([f"<span class='badge badge-partial'>{s}</span>" for s in skills.get('partial', [])]) or "<i>None</i>"
-                missing_html = "".join([f"<span class='badge badge-missing'>{s}</span>" for s in skills.get('missing', [])]) or "<i>None</i>"
+                st.markdown("#### ✍️ Grammar, Spelling & Formatting Slips")
+                typos = hygiene.get("grammar_and_typos", [])
+                if typos:
+                    for typo in typos:
+                        st.markdown(f"""
+                        <div class="audit-box audit-box-danger">
+                            ⚠️ {typo}
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.success("✅ Clean document! No obvious typos or grammar discrepancies flagged.")
 
-                st.markdown(f"**Matched:**<br>{matched_html}", unsafe_allow_html=True)
-                st.markdown(f"**Partial:**<br>{partial_html}", unsafe_allow_html=True)
-                st.markdown(f"**Missing:**<br>{missing_html}", unsafe_allow_html=True)
+                st.markdown("#### 🛑 Passive Phrasing & Weak Action Verbs")
+                passives = hygiene.get("passive_phrasing_flags", [])
+                if passives:
+                    for p in passives:
+                        st.markdown(f"""
+                        <div class="audit-box audit-box-warn">
+                            💡 {p}
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.info("Strong active verbs utilized throughout work history.")
 
-            with r_col2:
-                st.markdown("**⏳ Experience Alignment:**")
-                st.info(rep.get('experience_match', 'N/A'))
+            # TAB 3: Projects, Titles & Certifications
+            with tab3:
+                st.markdown("#### 🏷️ Recommended Role Title Refinements")
+                roles = rep.get("role_upgrade_suggestions", [])
+                if roles:
+                    for r in roles:
+                        curr = r.get('current_title', 'Current')
+                        rec = r.get('recommended_title', 'Recommended')
+                        reason = r.get('reasoning', '')
+                        st.markdown(f"""
+                        <div class="rewrite-card">
+                            <span style="color: #8b949e;">Current:</span> <b>{curr}</b> ➔ 
+                            <span style="color: #4ade80;">Recommended:</span> <b>{rec}</b>
+                            <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;">{reason}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
 
-                st.markdown("**🎓 Education Fit:**")
-                st.info(rep.get('education_match', 'N/A'))
+                st.markdown("#### 🚀 Project Impact Overhaul (STAR Framework)")
+                projs = rep.get("project_improvements", [])
+                if projs:
+                    for p in projs:
+                        p_title = p.get("project_title", "Project")
+                        curr_b = p.get("current_bullet", "")
+                        star_b = p.get("star_rewritten_bullet", "")
+                        st.markdown(f"""
+                        <div class="rewrite-card">
+                            <b>📌 {p_title}</b><br>
+                            <span style="color: #fb7185; font-size: 0.85rem;">❌ Weak / Plain:</span> <i>"{curr_b}"</i><br>
+                            <span style="color: #4ade80; font-size: 0.85rem;">✅ STAR Impact Rewrite:</span> <b>"{star_b}"</b>
+                        </div>
+                        """, unsafe_allow_html=True)
 
-                st.markdown("**⚠️ Identified Gaps:**")
-                for gap in rep.get("gaps", []):
-                    st.markdown(f"- {gap}")
+                t3_col1, t3_col2 = st.columns([1, 1])
+                with t3_col1:
+                    st.markdown("#### 📜 High-Value Industry Certifications")
+                    certs = rep.get("recommended_certifications", [])
+                    cert_html = "".join([f"<span class='badge badge-cert'>{c}</span>" for c in certs]) or "<i>No specific certs required</i>"
+                    st.markdown(cert_html, unsafe_allow_html=True)
 
-                st.markdown("**🚀 Curated Upskilling Roadmaps:**")
-                courses = rep.get("course_suggestions", [])
-                for c in courses:
-                    title = c.get("title", "Course")
-                    url = c.get("url", "https://coursera.org")
-                    desc = c.get("desc", "")
-                    st.markdown(f"📚 **[{title}]({url})** — *{desc}*")
+                with t3_col2:
+                    st.markdown("#### 📚 Curated Upskilling Roadmaps")
+                    courses = rep.get("course_suggestions", [])
+                    for c in courses:
+                        title = c.get("title", "Course")
+                        url = c.get("url", "https://coursera.org")
+                        desc = c.get("desc", "")
+                        st.markdown(f"📚 **[{title}]({url})** — *{desc}*")
