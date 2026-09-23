@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MatchPro ATS — Recruiter Intelligence Engine</title>
+  <script src="[https://cdn.plot.ly/plotly-2.27.0.min.js](https://cdn.plot.ly/plotly-2.27.0.min.js)"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --heading: #f0f6fc;
+      --subtext: #8b949e;
+      --accent: #0284c7;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --heading: #0f172a;
+      --subtext: #64748b;
+      --accent: #0284c7;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .hero {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.8rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    textarea {
+      width: 100%;
+      height: 240px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background: var(--card-bg);
+      height: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(90deg, #0284c7, #2563eb);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      padding: 0.8rem 1.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      text-align: center;
+    }
+    .metric-val { font-size: 1.8rem; font-weight: 700; color: var(--heading); }
+    .metric-lbl { font-size: 0.8rem; color: var(--subtext); text-transform: uppercase; margin-top: 0.2rem; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; margin: 0.2rem; }
+    .badge-matched { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .badge-partial { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-missing { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+    .diff-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    .from-txt { color: #fb7185; font-family: monospace; font-size: 0.9rem; }
+    .to-txt { color: #4ade80; font-family: monospace; font-size: 0.9rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <div>
+      <h1 class="hero-title">⚡ MatchPro ATS Intelligence Engine</h1>
+      <p style="margin: 0.3rem 0 0 0; color: var(--subtext);">Native Vercel Serverless Architecture</p>
+    </div>
+    <select id="themeSelect" onchange="switchTheme(this.value)" style="padding: 0.4rem 0.8rem; border-radius: 6px; background: var(--card-bg); color: var(--text); border: 1px solid var(--border);">
+      <option value="dark">Dark Theme</option>
+      <option value="light">Light Theme</option>
+    </select>
+  </div>
+
+  <div class="grid">
+    <div>
+      <h3>📋 1. Target Job Description</h3>
+      <textarea id="jdInput" placeholder="Paste target requirements, frameworks, experience level..."></textarea>
+    </div>
+    <div>
+      <h3>📁 2. Upload Candidate Resumes</h3>
+      <div class="dropzone" onclick="document.getElementById('fileInput').click()">
+        <p id="dropText">Click or Drag Resumes here (.pdf, .docx, .txt)</p>
+        <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFiles(this.files)">
+      </div>
+    </div>
+  </div>
+
+  <button class="primary" onclick="runBenchmark()" id="submitBtn">🚀 Run ATS Benchmark & Audit</button>
+
+  <div id="results" style="display: none;">
+    <div class="metric-grid" id="kpis"></div>
+    <div id="chart" style="margin-bottom: 2rem;"></div>
+    <div id="candidateReports"></div>
+  </div>
+</div>
+
+<script>
+  let selectedFiles = [];
+
+  function switchTheme(mode) {
+    document.documentElement.setAttribute('data-theme', mode);
+  }
+
+  function handleFiles(files) {
+    selectedFiles = Array.from(files);
+    document.getElementById('dropText').innerText = `Staged ${selectedFiles.length} file(s): ` + selectedFiles.map(f => f.name).join(', ');
+  }
+
+  async function runBenchmark() {
+    const jd = document.getElementById('jdInput').value.trim();
+    if (!jd) return alert("Please enter a Job Description.");
+    if (!selectedFiles.length) return alert("Please upload at least one resume.");
+
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "⚡ Running Analysis on Vercel Serverless...";
+    btn.disabled = true;
+
+    const fd = new FormData();
+    fd.append('jd', jd);
+    selectedFiles.forEach(f => fd.append('files', f));
+
+    try {
+      const res = await fetch('/api/index', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      renderResults(data);
+    } catch (e) {
+      alert("Error: " + e.message);
+    } finally {
+      btn.innerText = "🚀 Run ATS Benchmark & Audit";
+      btn.disabled = false;
+    }
+  }
+
+  function renderResults(data) {
+    document.getElementById('results').style.display = "block";
+    const candidates = data.candidates || [];
+    const reports = data.reports || [];
+
+    // KPI Cards
+    const top = candidates.reduce((prev, curr) => (curr.score > prev.score) ? curr : prev, candidates[0]);
+    const avg = (candidates.reduce((acc, c) => acc + c.score, 0) / candidates.length).toFixed(1);
+    
+    document.getElementById('kpis').innerHTML = `
+      <div class="metric-card"><div class="metric-val">${candidates.length}</div><div class="metric-lbl">Screened</div></div>
+      <div class="metric-card"><div class="metric-val" style="color: #38bdf8;">${top.name.slice(0, 14)}</div><div class="metric-lbl">Top Candidate</div></div>
+      <div class="metric-card"><div class="metric-val" style="color: #22c55e;">${top.score}%</div><div class="metric-lbl">Highest Match</div></div>
+      <div class="metric-card"><div class="metric-val">${avg}%</div><div class="metric-lbl">Average Score</div></div>
+    `;
+
+    // Plotly Chart
+    Plotly.newPlot('chart', [{
+      type: 'bar',
+      x: candidates.map(c => c.score),
+      y: candidates.map(c => c.name),
+      orientation: 'h',
+      marker: { color: '#0284c7' }
+    }], {
+      margin: { l: 150, r: 20, t: 20, b: 40 },
+      paper_bgcolor: 'transparent',
+      plot_bgcolor: 'transparent',
+      font: { color: '#c9d1d9' },
+      xaxis: { range: [0, 100], title: 'ATS Match Score (%)' }
+    }, { responsive: true });
+
+    // Reports
+    let html = `<h3>📋 Candidate Evaluation Reports</h3>`;
+    reports.forEach(r => {
+      html += `
+        <div class="diff-card" style="margin-bottom: 1.5rem;">
+          <h2>👤 ${r.name} — ${r.score}% Match</h2>
+          <p><b>Experience:</b> ${r.experience_match}</p>
+          <p><b>Education:</b> ${r.education_match}</p>
+          <h4>🎯 Matched Skills</h4>
+          <div>${(r.skills.matched || []).map(s => `<span class="badge badge-matched">${s}</span>`).join('')}</div>
+          <h4>⚠️ Identified Gaps</h4>
+          <ul>${(r.gaps || []).map(g => `<li>${g}</li>`).join('')}</ul>
+          <h4>✍️ Phrasing Audits</h4>
+          ${(r.phrasing_and_grammar_fixes || []).map(f => `
+            <div class="diff-card">
+              <span class="from-txt">❌ From: "${f.from_text}"</span><br>
+              <span class="to-txt">✅ To: "${f.to_text}"</span>
+              <p style="margin: 0.3rem 0 0; color: var(--subtext); font-size: 0.85rem;">${f.reasoning}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    });
+    document.getElementById('candidateReports').innerHTML = html;
+  }
+</script>
+</body>
+</html>
