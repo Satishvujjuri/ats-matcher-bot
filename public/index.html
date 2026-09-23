@@ -172,14 +172,19 @@
     fd.append('jd', jd);
     selectedFiles.forEach(f => fd.append('files', f));
 
-    try {
-      const res = await fetch('/api/index', { method: 'POST', body: fd });
+   try {
+      const res = await fetch('/api', { method: 'POST', body: fd });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Server returned ${res.status}: ${errText}`);
+      }
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
       renderResults(data);
     } catch (e) {
-      alert("Error: " + e.message);
+      alert("Analysis failed: " + e.message);
+      console.error(e);
     } finally {
       btn.innerText = "🚀 Run ATS Benchmark & Audit";
       btn.disabled = false;
