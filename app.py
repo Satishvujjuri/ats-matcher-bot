@@ -31,14 +31,13 @@ if "ats_results" not in st.session_state:
     st.session_state.ats_results = None
 
 # ---------------------------------------------------------
-# Dual Theme Dynamic Styling Engine (Streamlit Native Overrides)
+# Dual Theme Dynamic Styling Engine
 # ---------------------------------------------------------
 if st.session_state.theme_mode == "Dark":
     theme_css = """
     <style>
         .stApp { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
-        /* Hero Container */
         .hero-container {
             padding: 1.8rem 2rem;
             background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
@@ -57,7 +56,6 @@ if st.session_state.theme_mode == "Dark":
         }
         .hero-subtitle { color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem; }
 
-        /* Metric & Diff Cards */
         .metric-card {
             background-color: #161b22;
             border: 1px solid #30363d;
@@ -78,7 +76,6 @@ if st.session_state.theme_mode == "Dark":
         .text-before { color: #fb7185; font-size: 0.88rem; font-family: monospace; }
         .text-after { color: #4ade80; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
 
-        /* Badges */
         .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
         .badge-matched { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         .badge-partial { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
@@ -86,7 +83,6 @@ if st.session_state.theme_mode == "Dark":
         .badge-free { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-paid { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-        /* Streamlit Native Inputs (Dark Mode) */
         textarea, .stTextArea textarea {
             background-color: #161b22 !important;
             color: #f0f6fc !important;
@@ -99,13 +95,23 @@ if st.session_state.theme_mode == "Dark":
             border-radius: 8px !important;
             padding: 0.8rem !important;
         }
-        [data-testid="stFileUploader"] * {
-            color: #c9d1d9 !important;
-        }
+        [data-testid="stFileUploader"] * { color: #c9d1d9 !important; }
         div[data-baseweb="select"] > div {
             background-color: #161b22 !important;
             color: #f0f6fc !important;
             border-color: #30363d !important;
+        }
+        .streamlit-expanderHeader {
+            background-color: #161b22 !important;
+            border: 1px solid #30363d !important;
+            border-radius: 8px !important;
+        }
+        div.stButton > button:first-child {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
         }
     </style>
     """
@@ -114,7 +120,6 @@ else:
     <style>
         .stApp { background-color: #f8fafc; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
-        /* Hero Container */
         .hero-container {
             padding: 1.8rem 2rem;
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
@@ -133,12 +138,8 @@ else:
         }
         .hero-subtitle { color: #475569; font-size: 0.95rem; margin-top: 0.3rem; font-weight: 500; }
 
-        /* Headers & Labels */
-        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {
-            color: #0f172a !important;
-        }
+        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown { color: #0f172a !important; }
 
-        /* Metric & Diff Cards */
         .metric-card {
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
@@ -161,7 +162,6 @@ else:
         .text-before { color: #be123c; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
         .text-after { color: #15803d; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
 
-        /* Badges */
         .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
         .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
         .badge-partial { background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
@@ -169,7 +169,6 @@ else:
         .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
         .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
 
-        /* Streamlit Native Inputs (Light Mode Overrides) */
         textarea, .stTextArea textarea {
             background-color: #ffffff !important;
             color: #0f172a !important;
@@ -177,55 +176,40 @@ else:
             border-radius: 8px !important;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
         }
-        textarea::placeholder {
-            color: #94a3b8 !important;
-        }
+        textarea::placeholder { color: #94a3b8 !important; }
 
-        /* File Uploader Container & Dropzone */
         [data-testid="stFileUploader"] {
             background-color: #ffffff !important;
             border: 2px dashed #cbd5e1 !important;
             border-radius: 10px !important;
             padding: 1rem !important;
         }
-        [data-testid="stFileUploader"] section {
-            background-color: #f8fafc !important;
-            border-radius: 8px !important;
-        }
-        [data-testid="stFileUploader"] * {
-            color: #1e293b !important;
-        }
+        [data-testid="stFileUploader"] section { background-color: #f8fafc !important; border-radius: 8px !important; }
+        [data-testid="stFileUploader"] * { color: #1e293b !important; }
         [data-testid="stFileUploader"] button {
             background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
         }
 
-        /* Selectbox (Theme dropdown) */
         div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
         }
-        div[data-baseweb="select"] * {
-            color: #0f172a !important;
-        }
+        div[data-baseweb="select"] * { color: #0f172a !important; }
 
-        /* Expanders & Tabs */
         .streamlit-expanderHeader {
             background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
         }
-        button[data-baseweb="tab"] {
-            color: #475569 !important;
-        }
+        button[data-baseweb="tab"] { color: #475569 !important; }
         button[data-baseweb="tab"][aria-selected="true"] {
             color: #0284c7 !important;
             border-bottom-color: #0284c7 !important;
         }
 
-        /* Run Button */
         div.stButton > button:first-child {
             background: linear-gradient(90deg, #0284c7, #2563eb);
             color: #ffffff !important;
@@ -237,6 +221,7 @@ else:
     </style>
     """
 st.markdown(theme_css, unsafe_allow_html=True)
+
 # ---------------------------------------------------------
 # Secrets & API Key Resolution
 # ---------------------------------------------------------
@@ -311,7 +296,6 @@ def clean_json_string(raw: str) -> str:
     return cleaned.strip()
 
 def generate_with_resilience(prompt: str) -> str:
-    # Use only confirmed, active models for your API key
     candidate_models = ["gemini-3.6-flash"]
     attempts_log = []
 
@@ -331,11 +315,9 @@ def generate_with_resilience(prompt: str) -> str:
             except Exception as e:
                 err_msg = str(e)
                 attempts_log.append(f"{model_name} (Attempt {attempt + 1}): {err_msg}")
-                # Exponential backoff with jitter to recover from rate limits
-                sleep_time = (2 ** attempt) + random.uniform(1.0, 2.5)
+                sleep_time = (2 ** attempt) + random.uniform(1.0, 2.0)
                 time.sleep(sleep_time)
 
-    # If all attempts fail, show the exact reason from each attempt
     summary_err = "\n".join(attempts_log[-3:])
     raise RuntimeError(f"API request could not complete after multiple retries:\n{summary_err}")
 
@@ -347,7 +329,7 @@ with top_col1:
     st.markdown("""
     <div class="hero-container">
         <h1 class="hero-title">⚡ MatchPro ATS Intelligence Engine</h1>
-        <p class="hero-subtitle">Multi-Resume Benchmarking • Precise From-To Phrasing Audits • Production Project Upgrades</p>
+        <p class="hero-subtitle">Multi-Resume Benchmarking • Precise From-To Phrasing Audits • Work & Project Upgrades</p>
     </div>
     """, unsafe_allow_html=True)
 with top_col2:
@@ -400,7 +382,7 @@ if analyze_btn:
         st.warning("⚠️ Maximum 5 resumes allowed per batch to preserve API rate limits.")
         st.stop()
 
-    with st.spinner("⚡ Running deep evaluation: ATS Matching, Precise Phrasing Diff, and Project Engineering Overhaul..."):
+    with st.spinner("⚡ Evaluating profiles, phrasing fixes, project descriptions, and experience..."):
         payload = ""
         skipped_files = []
 
@@ -421,8 +403,8 @@ if analyze_btn:
             st.stop()
 
         prompt = f"""
-You are an elite ATS recruitment architect and principal software engineering hiring director.
-Analyze each candidate strictly against the Job Description AND conduct a granular resume transformation audit.
+You are an expert ATS recruitment evaluator and technical resume coach.
+Analyze each candidate strictly against the Job Description AND conduct a practical resume improvement audit.
 
 JOB DESCRIPTION:
 {jd_input}
@@ -458,65 +440,65 @@ Return ONLY valid JSON matching this schema:
       "experience_match": "Required: 3+ years | Candidate: 3.5 years | Status: MATCHED",
       "education_match": "Required: B.Tech in CS/IT | Candidate: B.Tech CSE | Status: MATCHED",
       "gaps": [
-        "Distributed message streaming (Kafka) is missing from production background.",
-        "No in-memory caching (Redis) mentioned in backend workflows."
+        "Message queues and streaming missing from candidate skillset.",
+        "No in-memory caching mentioned in recent work."
       ],
       "link_and_contact_audit": {{
-        "current_placement": "LinkedIn and GitHub are pasted as raw URLs at the bottom of page 1.",
-        "recommended_placement": "Move hyperlinked handles ('[github.com/username](https://github.com/username)', '[linkedin.com/in/username](https://linkedin.com/in/username)') into the top header directly under name and contact info.",
-        "reasoning": "ATS parsers parse the top 100 words for candidate contact profiles; links at the bottom get ignored or misclassified."
+        "current_placement": "LinkedIn and GitHub are listed as plain text at the bottom.",
+        "recommended_placement": "Place clean clickable handles (e.g. [github.com/username](https://github.com/username)) in the top header below name and contact info.",
+        "reasoning": "Recruiters and ATS parsers expect links in the top header for fast profile verification."
       }},
       "phrasing_and_grammar_fixes": [
         {{
           "category": "Spelling / Typo",
-          "from_text": "Experienced in building RESTfull web apis using Postgress.",
-          "to_text": "Experienced in engineering RESTful web APIs using PostgreSQL.",
-          "reasoning": "Eliminates typos on industry-standard technical keywords that cause ATS keyword filter drops."
+          "from_text": "Built web apis using Postgress and Flsak.",
+          "to_text": "Built web APIs using PostgreSQL and Flask.",
+          "reasoning": "Corrects framework typos that cause ATS keyword filter drops."
         }},
         {{
-          "category": "Passive to Impact Verbs",
-          "from_text": "Was responsible for handling database queries and bugs.",
-          "to_text": "Optimized complex SQL queries and resolved critical backend bugs, reducing query response times by 28%.",
-          "reasoning": "Replaces passive duty phrasing with active leadership and quantifiable performance impact."
+          "category": "Action Verb Upgrade",
+          "from_text": "Responsible for managing bug fixes and API calls.",
+          "to_text": "Streamlined backend API response times and resolved critical application defects.",
+          "reasoning": "Converts passive task lists into action-oriented delivery statements."
         }}
       ],
       "role_upgrade_suggestions": [
         {{
           "current_title": "Software Developer Intern",
-          "recommended_title": "Junior Backend & Cloud Engineer",
-          "reasoning": "Aligns your resume headline closer to the target backend/cloud requirements in this JD."
+          "recommended_title": "Backend Engineering Intern",
+          "reasoning": "More descriptive title directly aligned with target role."
         }}
       ],
-      "project_deep_dive": [
+      "work_experience_improvements": [
         {{
-          "project_name": "E-Commerce Web Platform",
-          "current_summary": "Built a shop website where users can purchase items with authentication and payment.",
-          "identified_mistakes": [
-            "Lacks mentions of architecture scalability, concurrency handling, or database schema design.",
-            "No metrics indicating test coverage or deployment pipelines."
-          ],
-          "from_bullet": "Made backend endpoints and connected database.",
-          "to_bullet": "Engineered 14+ secure REST endpoints using FastAPI and PostgreSQL with JWT authentication and Stripe webhook integration.",
-          "upgrade_roadmap": [
-            "Upgrade 1: Introduce Redis caching to store frequently retrieved product catalogs.",
-            "Upgrade 2: Containerize services with Docker Compose and set up a GitHub Actions CI/CD pipeline."
-          ]
+          "company_or_role": "Web Development Intern at XYZ Corp",
+          "mistake_identified": "Only listed routine daily duties without showing metrics or tech tools.",
+          "from_bullet": "Worked on frontend designs and tested features.",
+          "to_bullet": "Developed responsive user interface components with React and implemented client-side state handling to improve page load speed.",
+          "hiring_tip": "Highlight concrete tooling used and team collaboration to appeal to product companies."
+        }}
+      ],
+      "project_improvements": [
+        {{
+          "project_name": "Project Name Found in Resume",
+          "candidate_original_description": "Candidate's exact words from resume describing this project.",
+          "mistakes_in_description": "Lacks specific tech stack keywords and measurable accomplishments.",
+          "from_bullet": "Developed a Python application to track tasks and stored data in database.",
+          "to_bullet": "Engineered a Python and Flask task management web application integrated with PostgreSQL and JWT authentication.",
+          "suggested_better_version": "Add automated unit tests and host a live demo on Render or Vercel with a GitHub repo link in the resume."
         }}
       ],
       "certifications": {{
         "free_certifications": [
-          {{"title": "freeCodeCamp Back End Development & APIs", "url": "[https://www.freecodecamp.org/learn/back-end-development-and-apis/](https://www.freecodecamp.org/learn/back-end-development-and-apis/)", "desc": "Free foundational cert covering Node.js, Express, MongoDB, and microservices."}},
-          {{"title": "CS50's Introduction to Computer Science (Harvard/edX)", "url": "[https://www.edx.org/cs50](https://www.edx.org/cs50)", "desc": "Free audit path covering memory management, data structures, and algorithms."}}
+          {{"title": "freeCodeCamp Back End Development and APIs", "url": "[https://www.freecodecamp.org/learn/back-end-development-and-apis/](https://www.freecodecamp.org/learn/back-end-development-and-apis/)", "desc": "Covers Node.js, Express, and microservice fundamentals."}},
+          {{"title": "CS50 Introduction to Computer Science (edX audit)", "url": "[https://www.edx.org/cs50](https://www.edx.org/cs50)", "desc": "Solid foundation in data structures, algorithms, and memory management."}}
         ],
-        "paid_certifications": [
-          {{"title": "AWS Certified Solutions Architect – Associate (SAA-C03)", "provider": "Amazon Web Services", "cost": "~$150 USD", "desc": "Gold standard for cloud infrastructure, networking, and microservices architecture."}},
-          {{"title": "Certified Kubernetes Application Developer (CKAD)", "provider": "Linux Foundation", "cost": "~$395 USD", "desc": "Top-tier container orchestration credential proving deployment skills."}}
-        ]
-      }},
-      "course_suggestions": [
-        {{"title": "Apache Kafka for Beginners", "url": "[https://www.udemy.com/course/apache-kafka/](https://www.udemy.com/course/apache-kafka/)", "desc": "Master distributed event streaming and message brokers."}},
-        {{"title": "AWS Cloud Technical Essentials", "url": "[https://www.coursera.org/learn/aws-cloud-technical-essentials](https://www.coursera.org/learn/aws-cloud-technical-essentials)", "desc": "Hands-on mastery of ECS, EC2, and S3."}}
-      ]
+        "paid_certification": {{
+          "title": "AWS Certified Solutions Architect – Associate (SAA-C03)",
+          "cost": "~$150 USD",
+          "desc": "Industry-standard credential validating scalable cloud architecture and deployment practices."
+        }}
+      }}
     }}
   ]
 }}
@@ -542,7 +524,6 @@ if st.session_state.ats_results:
 
     st.markdown("---")
     
-    # Summary KPI Cards
     if candidates:
         top_candidate = max(candidates, key=lambda x: x.get("score", 0))
         avg_score = round(sum(c.get("score", 0) for c in candidates) / len(candidates), 1)
@@ -579,7 +560,6 @@ if st.session_state.ats_results:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Plotly Benchmark Chart
         df = pd.DataFrame(candidates).sort_values(by="score", ascending=True)
         fig = px.bar(
             df,
@@ -596,8 +576,8 @@ if st.session_state.ats_results:
         
         paper_bg = "#0d1117" if st.session_state.theme_mode == "Dark" else "#ffffff"
         plot_bg = "#161b22" if st.session_state.theme_mode == "Dark" else "#f8fafc"
-        font_col = "#c9d1d9" if st.session_state.theme_mode == "Dark" else "#1e293b"
-        grid_col = "#21262d" if st.session_state.theme_mode == "Dark" else "#e2e8f0"
+        font_col = "#c9d1d9" if st.session_state.theme_mode == "Dark" else "#0f172a"
+        grid_col = "#21262d" if st.session_state.theme_mode == "Dark" else "#cbd5e1"
 
         fig.update_layout(
             paper_bgcolor=paper_bg,
@@ -611,7 +591,6 @@ if st.session_state.ats_results:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        # Export CSV Button
         csv_data = df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 Export Benchmark to CSV",
@@ -620,7 +599,6 @@ if st.session_state.ats_results:
             mime="text/csv"
         )
 
-    # Detailed Candidate Reports with 3 Upgraded Tabs
     st.markdown("### 📋 Candidate Evaluation Drill-Down")
 
     for rep in reports:
@@ -630,7 +608,11 @@ if st.session_state.ats_results:
         badge_label = "Strong Match" if score >= 75 else "Moderate Match" if score >= 50 else "Weak Match"
 
         with st.expander(f"👤 {name} — Score: {score}% ({badge_label})", expanded=True):
-            tab1, tab2, tab3 = st.tabs(["🎯 1. ATS Fit & Skill Gaps", "🔍 2. Resume Hygiene & From➔To Audits", "🚀 3. Projects Overhaul & Certifications"])
+            tab1, tab2, tab3 = st.tabs([
+                "🎯 1. ATS Fit & Skill Gaps", 
+                "🔍 2. Resume Hygiene & From➔To Audits", 
+                "🚀 3. Projects, Work Experience & Certifications"
+            ])
 
             # TAB 1: ATS Scoring & Skills
             with tab1:
@@ -713,51 +695,63 @@ if st.session_state.ats_results:
                         </div>
                         """, unsafe_allow_html=True)
 
-            # TAB 3: Projects Deep-Dive & Free/Paid Certifications
+            # TAB 3: Projects, Experience & Balanced Certs
             with tab3:
-                st.markdown("#### 🛠️ Project Architecture Analysis & Upgrade Roadmaps")
-                projects = rep.get("project_deep_dive", [])
+                st.markdown("#### 🛠️ Project Description Review & Better Versions")
+                projects = rep.get("project_improvements", [])
                 if projects:
                     for proj in projects:
                         p_name = proj.get("project_name", "Project")
-                        summary = proj.get("current_summary", "")
-                        mistakes = proj.get("identified_mistakes", [])
+                        orig_desc = proj.get("candidate_original_description", "")
+                        mistakes = proj.get("mistakes_in_description", "")
                         from_b = proj.get("from_bullet", "")
                         to_b = proj.get("to_bullet", "")
-                        roadmaps = proj.get("upgrade_roadmap", [])
+                        upgrade = proj.get("suggested_better_version", "")
 
-                        with st.container():
-                            st.markdown(f"""
-                            <div class="diff-card">
-                                <h4 style="margin: 0; color: #38bdf8;">📌 {p_name}</h4>
-                                <p style="color: #8b949e; font-size: 0.88rem; margin-top: 0.3rem;"><i>{summary}</i></p>
-                                
-                                <b style="color: #fb7185; font-size: 0.88rem;">⚠️ Identified Flaws & Blindspots:</b>
-                                <ul style="color: #8b949e; font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
-                                    {"".join([f"<li>{m}</li>" for m in mistakes])}
-                                </ul>
+                        st.markdown(f"""
+                        <div class="diff-card">
+                            <h4 style="margin: 0; color: #38bdf8;">📌 {p_name}</h4>
+                            <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;"><b>Resume Description:</b> <i>"{orig_desc}"</i></p>
+                            
+                            <p style="color: #fb7185; font-size: 0.85rem; margin: 0.3rem 0;"><b>⚠️ Identified Flaw:</b> {mistakes}</p>
 
-                                <b style="font-size: 0.88rem;">Impact Bullet Rewrite:</b><br>
-                                <span class="text-before">❌ From: "{from_b}"</span><br>
-                                <span class="text-after">✅ To: "{to_b}"</span><br><br>
+                            <b style="font-size: 0.85rem;">Bullet Point Improvement:</b><br>
+                            <span class="text-before">❌ From: "{from_b}"</span><br>
+                            <span class="text-after">✅ To: "{to_b}"</span><br><br>
 
-                                <b style="color: #38bdf8; font-size: 0.88rem;">🚀 Architectural Upgrade Roadmap:</b>
-                                <ul style="color: #4ade80; font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 0;">
-                                    {"".join([f"<li>{r}</li>" for r in roadmaps])}
-                                </ul>
-                            </div>
-                            """, unsafe_allow_html=True)
+                            <p style="color: #4ade80; font-size: 0.85rem; margin: 0;"><b>💡 Suggested Better Version:</b> {upgrade}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
 
-                st.markdown("#### 📜 Targeted Certifications (Free vs. Industry Paid)")
+                st.markdown("#### 💼 Internship & Work Experience Polish")
+                exp_fixes = rep.get("work_experience_improvements", [])
+                if exp_fixes:
+                    for ef in exp_fixes:
+                        comp = ef.get("company_or_role", "Experience")
+                        flaw = ef.get("mistake_identified", "")
+                        fb = ef.get("from_bullet", "")
+                        tb = ef.get("to_bullet", "")
+                        tip = ef.get("hiring_tip", "")
+                        st.markdown(f"""
+                        <div class="diff-card">
+                            <h5 style="margin: 0; color: #38bdf8;">🏢 {comp}</h5>
+                            <p style="color: #fb7185; font-size: 0.83rem; margin: 0.3rem 0;"><b>⚠️ Area to Improve:</b> {flaw}</p>
+                            <span class="text-before">❌ From: "{fb}"</span><br>
+                            <span class="text-after">✅ To: "{tb}"</span>
+                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.4rem; margin-bottom: 0;"><b>🎯 Recruiter Tip:</b> {tip}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                st.markdown("#### 📜 Targeted Certifications")
                 certs_data = rep.get("certifications", {})
                 free_certs = certs_data.get("free_certifications", [])
-                paid_certs = certs_data.get("paid_certifications", [])
+                paid_cert = certs_data.get("paid_certification", {})
 
                 c_col1, c_col2 = st.columns([1, 1], gap="medium")
                 with c_col1:
-                    st.markdown("##### 🟢 Free / Open-Access Certifications")
-                    for fc in free_certs:
-                        title = fc.get("title", "Cert")
+                    st.markdown("##### 🟢 2 Recommended Free Certifications")
+                    for fc in free_certs[:2]:
+                        title = fc.get("title", "Free Certification")
                         url = fc.get("url", "#")
                         desc = fc.get("desc", "")
                         st.markdown(f"""
@@ -768,15 +762,14 @@ if st.session_state.ats_results:
                         """, unsafe_allow_html=True)
 
                 with c_col2:
-                    st.markdown("##### 🟡 High-Value Industry Paid Credentials")
-                    for pc in paid_certs:
-                        title = pc.get("title", "Cert")
-                        provider = pc.get("provider", "")
-                        cost = pc.get("cost", "")
-                        desc = pc.get("desc", "")
+                    st.markdown("##### 🟡 1 Recommended Paid / Industry Credential")
+                    if paid_cert:
+                        p_title = paid_cert.get("title", "Industry Certification")
+                        p_cost = paid_cert.get("cost", "Paid")
+                        p_desc = paid_cert.get("desc", "")
                         st.markdown(f"""
                         <div class="diff-card">
-                            <span class="badge badge-paid">{cost}</span> <b>{title}</b> <span style="color: #8b949e; font-size: 0.8rem;">({provider})</span>
-                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{desc}</p>
+                            <span class="badge badge-paid">{p_cost}</span> <b>{p_title}</b>
+                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{p_desc}</p>
                         </div>
                         """, unsafe_allow_html=True)
