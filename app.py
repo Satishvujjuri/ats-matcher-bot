@@ -15,7 +15,7 @@ from google import genai
 from google.genai import types
 
 # ---------------------------------------------------------
-# Page Configuration & State
+# Page Configuration & Clean SaaS Light Theme
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="MatchPro ATS — Recruiter Intelligence Engine",
@@ -24,203 +24,144 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-if "theme_mode" not in st.session_state:
-    st.session_state.theme_mode = "Dark"
+st.markdown("""
+<style>
+    /* Global App Background & Base Typography */
+    .stApp {
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    /* Hero Header */
+    .hero-container {
+        padding: 1.8rem 2rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    }
+    .hero-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #0284c7, #4f46e5, #9333ea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+    .hero-subtitle {
+        color: #475569;
+        font-size: 0.95rem;
+        margin-top: 0.3rem;
+        font-weight: 500;
+    }
 
-if "ats_results" not in st.session_state:
-    st.session_state.ats_results = None
+    /* Force all headings and text to crisp dark slate */
+    h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {
+        color: #0f172a !important;
+    }
 
-# ---------------------------------------------------------
-# Dual Theme Dynamic Styling Engine
-# ---------------------------------------------------------
-if st.session_state.theme_mode == "Dark":
-    theme_css = """
-    <style>
-        .stApp { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        
-        .hero-container {
-            padding: 1.8rem 2rem;
-            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
-            border: 1px solid #30363d;
-            border-radius: 14px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        }
-        .hero-title {
-            font-size: 2.1rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-        }
-        .hero-subtitle { color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem; }
+    /* Metric & Diff Cards */
+    .metric-card {
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 1.1rem;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .metric-value { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
+    .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
 
-        .metric-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 12px;
-            padding: 1.1rem;
-            text-align: center;
-        }
-        .metric-value { font-size: 1.7rem; font-weight: 700; color: #f0f6fc; }
-        .metric-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .diff-card {
-            background-color: #161b22;
-            border: 1px solid #2d333b;
-            border-radius: 8px;
-            padding: 0.9rem 1.1rem;
-            margin-bottom: 0.8rem;
-        }
-        .text-before { color: #fb7185; font-size: 0.88rem; font-family: monospace; }
-        .text-after { color: #4ade80; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+    .diff-card {
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    .text-before { color: #be123c; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+    .text-after { color: #15803d; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
 
-        .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
-        .badge-matched { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .badge-partial { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-        .badge-missing { background-color: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
-        .badge-free { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-paid { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    /* Pill Badges */
+    .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
+    .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-partial { background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+    .badge-missing { background-color: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; }
+    .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
+    .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
 
-        textarea, .stTextArea textarea {
-            background-color: #161b22 !important;
-            color: #f0f6fc !important;
-            border: 1px solid #30363d !important;
-            border-radius: 8px !important;
-        }
-        [data-testid="stFileUploader"] {
-            background-color: #161b22 !important;
-            border: 1px dashed #30363d !important;
-            border-radius: 8px !important;
-            padding: 0.8rem !important;
-        }
-        [data-testid="stFileUploader"] * { color: #c9d1d9 !important; }
-        div[data-baseweb="select"] > div {
-            background-color: #161b22 !important;
-            color: #f0f6fc !important;
-            border-color: #30363d !important;
-        }
-        .streamlit-expanderHeader {
-            background-color: #161b22 !important;
-            border: 1px solid #30363d !important;
-            border-radius: 8px !important;
-        }
-        div.stButton > button:first-child {
-            background: linear-gradient(90deg, #2563eb, #3b82f6);
-            color: #ffffff;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-        }
-    </style>
-    """
-else:
-    theme_css = """
-    <style>
-        .stApp { background-color: #f8fafc; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        
-        .hero-container {
-            padding: 1.8rem 2rem;
-            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-            border: 1px solid #cbd5e1;
-            border-radius: 14px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-        .hero-title {
-            font-size: 2.1rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #0284c7, #4f46e5, #9333ea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-        }
-        .hero-subtitle { color: #475569; font-size: 0.95rem; margin-top: 0.3rem; font-weight: 500; }
+    /* Textarea & File Uploader */
+    textarea, .stTextArea textarea {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.03) !important;
+    }
+    textarea::placeholder { color: #94a3b8 !important; }
 
-        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown { color: #0f172a !important; }
+    [data-testid="stFileUploader"] {
+        background-color: #ffffff !important;
+        border: 2px dashed #cbd5e1 !important;
+        border-radius: 10px !important;
+        padding: 0.9rem !important;
+    }
+    [data-testid="stFileUploader"] section { background-color: #f8fafc !important; border-radius: 8px !important; }
+    [data-testid="stFileUploader"] * { color: #1e293b !important; }
+    [data-testid="stFileUploader"] button {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+    }
 
-        .metric-card {
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 1.1rem;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        }
-        .metric-value { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
-        .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    /* Expander Fix (NO MORE DARK BARS) */
+    div[data-testid="stExpander"] {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
+    }
+    div[data-testid="stExpander"] details {
+        background-color: #ffffff !important;
+        border-radius: 10px !important;
+    }
+    div[data-testid="stExpander"] summary {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-radius: 10px !important;
+        padding: 0.8rem 1rem !important;
+        font-weight: 700 !important;
+    }
+    div[data-testid="stExpander"] summary:hover {
+        background-color: #f1f5f9 !important;
+        color: #0284c7 !important;
+    }
+    div[data-testid="stExpander"] summary * {
+        color: #0f172a !important;
+    }
 
-        .diff-card {
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 0.9rem 1.1rem;
-            margin-bottom: 0.8rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        }
-        .text-before { color: #be123c; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
-        .text-after { color: #15803d; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+    /* Tabs */
+    button[data-baseweb="tab"] { color: #64748b !important; font-weight: 600 !important; }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #0284c7 !important;
+        border-bottom-color: #0284c7 !important;
+    }
 
-        .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
-        .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-        .badge-partial { background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
-        .badge-missing { background-color: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; }
-        .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
-        .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
-
-        textarea, .stTextArea textarea {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 8px !important;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
-        }
-        textarea::placeholder { color: #94a3b8 !important; }
-
-        [data-testid="stFileUploader"] {
-            background-color: #ffffff !important;
-            border: 2px dashed #cbd5e1 !important;
-            border-radius: 10px !important;
-            padding: 1rem !important;
-        }
-        [data-testid="stFileUploader"] section { background-color: #f8fafc !important; border-radius: 8px !important; }
-        [data-testid="stFileUploader"] * { color: #1e293b !important; }
-        [data-testid="stFileUploader"] button {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-
-        div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-        div[data-baseweb="select"] * { color: #0f172a !important; }
-
-        .streamlit-expanderHeader {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-        button[data-baseweb="tab"] { color: #475569 !important; }
-        button[data-baseweb="tab"][aria-selected="true"] {
-            color: #0284c7 !important;
-            border-bottom-color: #0284c7 !important;
-        }
-
-        div.stButton > button:first-child {
-            background: linear-gradient(90deg, #0284c7, #2563eb);
-            color: #ffffff !important;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
-        }
-    </style>
-    """
-st.markdown(theme_css, unsafe_allow_html=True)
+    /* Primary Action Buttons */
+    div.stButton > button:first-child {
+        background: linear-gradient(90deg, #0284c7, #2563eb);
+        color: #ffffff !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # Secrets & API Key Resolution
@@ -322,21 +263,17 @@ def generate_with_resilience(prompt: str) -> str:
     raise RuntimeError(f"API request could not complete after multiple retries:\n{summary_err}")
 
 # ---------------------------------------------------------
-# UI Header & Theme Switcher
+# UI Header
 # ---------------------------------------------------------
-top_col1, top_col2 = st.columns([5, 1])
-with top_col1:
-    st.markdown("""
-    <div class="hero-container">
-        <h1 class="hero-title">⚡ MatchPro ATS Intelligence Engine</h1>
-        <p class="hero-subtitle">Multi-Resume Benchmarking • Precise From-To Phrasing Audits • Work & Project Upgrades</p>
-    </div>
-    """, unsafe_allow_html=True)
-with top_col2:
-    selected_theme = st.selectbox("🎨 UI Theme", ["Dark", "Light"], index=0 if st.session_state.theme_mode == "Dark" else 1)
-    if selected_theme != st.session_state.theme_mode:
-        st.session_state.theme_mode = selected_theme
-        st.rerun()
+st.markdown("""
+<div class="hero-container">
+    <h1 class="hero-title">⚡ MatchPro ATS Intelligence Engine</h1>
+    <p class="hero-subtitle">Multi-Resume Benchmarking • Precise From-To Phrasing Audits • Work & Project Upgrades</p>
+</div>
+""", unsafe_allow_html=True)
+
+if "ats_results" not in st.session_state:
+    st.session_state.ats_results = None
 
 col_left, col_right = st.columns([1, 1], gap="large")
 
@@ -539,14 +476,14 @@ if st.session_state.ats_results:
         with m_col2:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #38bdf8;">{str(top_candidate.get('name', 'N/A'))[:14]}</div>
+                <div class="metric-value" style="color: #0284c7;">{str(top_candidate.get('name', 'N/A'))[:14]}</div>
                 <div class="metric-label">Top Candidate</div>
             </div>
             """, unsafe_allow_html=True)
         with m_col3:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #22c55e;">{top_candidate.get('score', 0)}%</div>
+                <div class="metric-value" style="color: #16a34a;">{top_candidate.get('score', 0)}%</div>
                 <div class="metric-label">Highest Score</div>
             </div>
             """, unsafe_allow_html=True)
@@ -569,25 +506,23 @@ if st.session_state.ats_results:
             text="score",
             labels={"score": "ATS Match Score (%)", "name": "Candidate"},
             color="score",
-            color_continuous_scale=["#f43f5e", "#38bdf8", "#22c55e"],
+            color_continuous_scale=["#f43f5e", "#0284c7", "#22c55e"],
             range_x=[0, 100]
         )
-        fig.update_traces(texttemplate='<b>%{text}%</b>', textposition='outside', marker=dict(line=dict(width=0)))
-        
-        paper_bg = "#0d1117" if st.session_state.theme_mode == "Dark" else "#ffffff"
-        plot_bg = "#161b22" if st.session_state.theme_mode == "Dark" else "#f8fafc"
-        font_col = "#c9d1d9" if st.session_state.theme_mode == "Dark" else "#0f172a"
-        grid_col = "#21262d" if st.session_state.theme_mode == "Dark" else "#cbd5e1"
-
+        fig.update_traces(
+            texttemplate='<b>%{text}%</b>',
+            textposition='outside',
+            marker=dict(line=dict(width=0))
+        )
         fig.update_layout(
-            paper_bgcolor=paper_bg,
-            plot_bgcolor=plot_bg,
-            font=dict(color=font_col),
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#f8fafc",
+            font=dict(color="#0f172a", size=13),
             height=280 + (len(candidates) * 45),
             margin=dict(l=20, r=40, t=20, b=20),
             coloraxis_showscale=False,
-            xaxis=dict(showgrid=True, gridcolor=grid_col),
-            yaxis=dict(showgrid=False)
+            xaxis=dict(showgrid=True, gridcolor="#cbd5e1", tickfont=dict(color="#0f172a")),
+            yaxis=dict(showgrid=False, tickfont=dict(color="#0f172a", size=13))
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -669,11 +604,11 @@ if st.session_state.ats_results:
 
                 st.markdown(f"""
                 <div class="diff-card">
-                    <span style="font-weight: 700; color: #fb7185;">❌ Current Placement:</span><br>
+                    <span style="font-weight: 700; color: #be123c;">❌ Current Placement:</span><br>
                     <span class="text-before">{c_place}</span><br><br>
-                    <span style="font-weight: 700; color: #4ade80;">✅ Recommended Placement:</span><br>
+                    <span style="font-weight: 700; color: #15803d;">✅ Recommended Placement:</span><br>
                     <span class="text-after">{r_place}</span>
-                    <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>Why this matters:</b> {l_reason}</p>
+                    <p style="color: #64748b; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>Why this matters:</b> {l_reason}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -690,11 +625,11 @@ if st.session_state.ats_results:
                         st.markdown(f"""
                         <div class="diff-card">
                             <span class="badge badge-partial">{cat}</span><br>
-                            <span style="font-weight: 600; color: #fb7185;">❌ From (Current):</span><br>
+                            <span style="font-weight: 600; color: #be123c;">❌ From (Current):</span><br>
                             <span class="text-before">"{from_txt}"</span><br><br>
-                            <span style="font-weight: 600; color: #4ade80;">✅ To (Recommended):</span><br>
+                            <span style="font-weight: 600; color: #15803d;">✅ To (Recommended):</span><br>
                             <span class="text-after">"{to_txt}"</span>
-                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>ATS Impact:</b> {reason}</p>
+                            <p style="color: #64748b; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>ATS Impact:</b> {reason}</p>
                         </div>
                         """, unsafe_allow_html=True)
                 else:
@@ -711,9 +646,9 @@ if st.session_state.ats_results:
                         reason = r.get('reasoning', '')
                         st.markdown(f"""
                         <div class="diff-card">
-                            <span style="font-weight: 600; color: #fb7185;">❌ Current Role:</span> <b>{curr}</b> ➔ 
-                            <span style="font-weight: 600; color: #4ade80;">✅ Upgrade To:</span> <b>{rec}</b>
-                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.4rem; margin-bottom: 0;">{reason}</p>
+                            <span style="font-weight: 600; color: #be123c;">❌ Current Role:</span> <b>{curr}</b> ➔ 
+                            <span style="font-weight: 600; color: #15803d;">✅ Upgrade To:</span> <b>{rec}</b>
+                            <p style="color: #64748b; font-size: 0.83rem; margin-top: 0.4rem; margin-bottom: 0;">{reason}</p>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -734,13 +669,13 @@ if st.session_state.ats_results:
 
                         st.markdown(f"""
                         <div class="diff-card">
-                            <h4 style="margin: 0; color: #38bdf8;">📌 {p_name}</h4>
-                            <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;"><b>Resume Summary:</b> <i>"{orig_desc}"</i></p>
-                            <p style="color: #f59e0b; font-size: 0.85rem; margin: 0.3rem 0;"><b>💡 Context & Clarity Review:</b> {context_fb}</p>
+                            <h4 style="margin: 0; color: #0284c7;">📌 {p_name}</h4>
+                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 0.3rem;"><b>Resume Summary:</b> <i>"{orig_desc}"</i></p>
+                            <p style="color: #d97706; font-size: 0.85rem; margin: 0.3rem 0;"><b>💡 Context & Clarity Review:</b> {context_fb}</p>
                             <b style="font-size: 0.85rem;">Bullet Point Improvement:</b><br>
                             <span class="text-before">❌ From: "{from_b}"</span><br>
                             <span class="text-after">✅ To: "{to_b}"</span><br><br>
-                            <p style="color: #4ade80; font-size: 0.85rem; margin: 0;"><b>🎯 Presentation Tip:</b> {tip}</p>
+                            <p style="color: #15803d; font-size: 0.85rem; margin: 0;"><b>🎯 Presentation Tip:</b> {tip}</p>
                         </div>
                         """, unsafe_allow_html=True)
                 else:
@@ -759,11 +694,11 @@ if st.session_state.ats_results:
                         tip = ef.get("hiring_tip", "")
                         st.markdown(f"""
                         <div class="diff-card">
-                            <h5 style="margin: 0; color: #38bdf8;">🏢 {comp}</h5>
-                            <p style="color: #fb7185; font-size: 0.83rem; margin: 0.3rem 0;"><b>⚠️ Area to Improve:</b> {flaw}</p>
+                            <h5 style="margin: 0; color: #0284c7;">🏢 {comp}</h5>
+                            <p style="color: #be123c; font-size: 0.83rem; margin: 0.3rem 0;"><b>⚠️ Area to Improve:</b> {flaw}</p>
                             <span class="text-before">❌ From: "{fb}"</span><br>
                             <span class="text-after">✅ To: "{tb}"</span>
-                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.4rem; margin-bottom: 0;"><b>🎯 Recruiter Tip:</b> {tip}</p>
+                            <p style="color: #64748b; font-size: 0.83rem; margin-top: 0.4rem; margin-bottom: 0;"><b>🎯 Recruiter Tip:</b> {tip}</p>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -787,7 +722,7 @@ if st.session_state.ats_results:
                             st.markdown(f"""
                             <div class="diff-card">
                                 <span class="badge badge-free">FREE</span> <b><a href="{fc_url}" target="_blank" style="text-decoration: none; color: inherit;">{fc_title}</a></b>
-                                <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{fc_desc}</p>
+                                <p style="color: #64748b; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{fc_desc}</p>
                             </div>
                             """, unsafe_allow_html=True)
                     else:
@@ -802,7 +737,7 @@ if st.session_state.ats_results:
                         st.markdown(f"""
                         <div class="diff-card">
                             <span class="badge badge-paid">{p_cost}</span> <b>{p_title}</b>
-                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{p_desc}</p>
+                            <p style="color: #64748b; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{p_desc}</p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
