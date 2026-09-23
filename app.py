@@ -15,7 +15,7 @@ from google import genai
 from google.genai import types
 
 # ---------------------------------------------------------
-# Page Configuration & UI Theme Injection
+# Page Configuration & State
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="MatchPro ATS — Recruiter Intelligence Engine",
@@ -24,130 +24,126 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom Glassmorphic Dark UI Theme
-st.markdown("""
-<style>
-    .stApp {
-        background-color: #0d1117;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    
-    /* Hero Header */
-    .hero-container {
-        padding: 1.8rem 2rem;
-        background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
-        border: 1px solid #30363d;
-        border-radius: 14px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    }
-    .hero-title {
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
-    }
-    .hero-subtitle {
-        color: #8b949e;
-        font-size: 1rem;
-        margin-top: 0.4rem;
-        margin-bottom: 0;
-    }
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "Dark"
 
-    /* Metric Cards */
-    .metric-card {
-        background-color: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 12px;
-        padding: 1.2rem;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .metric-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #f0f6fc;
-    }
-    .metric-label {
-        font-size: 0.85rem;
-        color: #8b949e;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 0.2rem;
-    }
+if "ats_results" not in st.session_state:
+    st.session_state.ats_results = None
 
-    /* Skill & Category Badges */
-    .badge {
-        display: inline-block;
-        padding: 0.22rem 0.65rem;
-        border-radius: 9999px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        margin: 0.2rem;
-    }
-    .badge-matched {
-        background-color: rgba(34, 197, 94, 0.15);
-        color: #4ade80;
-        border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-    .badge-partial {
-        background-color: rgba(56, 189, 248, 0.15);
-        color: #38bdf8;
-        border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-    .badge-missing {
-        background-color: rgba(244, 63, 94, 0.15);
-        color: #fb7185;
-        border: 1px solid rgba(244, 63, 94, 0.3);
-    }
-    .badge-cert {
-        background-color: rgba(168, 85, 247, 0.15);
-        color: #c084fc;
-        border: 1px solid rgba(168, 85, 247, 0.3);
-    }
-
-    /* Audit Alert Cards */
-    .audit-box {
-        background-color: #161b22;
-        border-left: 4px solid #38bdf8;
-        border-radius: 6px;
-        padding: 0.8rem 1rem;
-        margin-bottom: 0.8rem;
-    }
-    .audit-box-warn {
-        border-left-color: #f59e0b;
-    }
-    .audit-box-danger {
-        border-left-color: #f43f5e;
-    }
-
-    /* Custom Project Before/After Cards */
-    .rewrite-card {
-        background-color: #111827;
-        border: 1px solid #1f2937;
-        border-radius: 8px;
-        padding: 0.9rem;
-        margin-bottom: 0.8rem;
-    }
-
-    /* Buttons */
-    div.stButton > button:first-child {
-        background: linear-gradient(90deg, #2563eb, #3b82f6);
-        color: #ffffff;
-        font-weight: 700;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
-        transition: all 0.2s ease-in-out;
-    }
-    div.stButton > button:first-child:hover {
-        background: linear-gradient(90deg, #1d4ed8, #2563eb);
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-    }
-</style>
-""", unsafe_allow_html=True)
+# ---------------------------------------------------------
+# Dual Theme Dynamic Styling Engine
+# ---------------------------------------------------------
+if st.session_state.theme_mode == "Dark":
+    theme_css = """
+    <style>
+        .stApp { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .hero-container {
+            padding: 1.8rem 2rem;
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            border: 1px solid #30363d;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .hero-title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+        .hero-subtitle { color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem; }
+        .metric-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1.1rem;
+            text-align: center;
+        }
+        .metric-value { font-size: 1.7rem; font-weight: 700; color: #f0f6fc; }
+        .metric-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+        .diff-card {
+            background-color: #161b22;
+            border: 1px solid #2d333b;
+            border-radius: 8px;
+            padding: 0.9rem 1.1rem;
+            margin-bottom: 0.8rem;
+        }
+        .text-before { color: #fb7185; font-size: 0.88rem; font-family: monospace; }
+        .text-after { color: #4ade80; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
+        .badge-matched { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-partial { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-missing { background-color: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-free { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-paid { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        div.stButton > button:first-child {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+        }
+    </style>
+    """
+else:
+    theme_css = """
+    <style>
+        .stApp { background-color: #f8fafc; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .hero-container {
+            padding: 1.8rem 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .hero-title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #0284c7, #4f46e5, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+        .hero-subtitle { color: #64748b; font-size: 0.95rem; margin-top: 0.3rem; }
+        .metric-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.1rem;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .metric-value { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
+        .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .diff-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.9rem 1.1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+        .text-before { color: #e11d48; font-size: 0.88rem; font-family: monospace; }
+        .text-after { color: #16a34a; font-size: 0.88rem; font-family: monospace; font-weight: 600; }
+        .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; margin: 0.2rem; }
+        .badge-matched { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-partial { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-missing { background-color: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
+        .badge-free { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        .badge-paid { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        div.stButton > button:first-child {
+            background: linear-gradient(90deg, #0284c7, #2563eb);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+        }
+    </style>
+    """
+st.markdown(theme_css, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # Secrets & API Key Resolution
@@ -248,17 +244,21 @@ def generate_with_resilience(prompt: str) -> str:
     raise RuntimeError(f"All model endpoints are busy. Last error: {last_exception}")
 
 # ---------------------------------------------------------
-# UI Header
+# UI Header & Theme Switcher
 # ---------------------------------------------------------
-st.markdown("""
-<div class="hero-container">
-    <h1 class="hero-title">⚡ MatchPro ATS Intelligence & Resume Auditor</h1>
-    <p class="hero-subtitle">Multi-Resume Benchmarking • Hygiene & Link Audit • Role & STAR Project Overhaul</p>
-</div>
-""", unsafe_allow_html=True)
-
-if "ats_results" not in st.session_state:
-    st.session_state.ats_results = None
+top_col1, top_col2 = st.columns([5, 1])
+with top_col1:
+    st.markdown("""
+    <div class="hero-container">
+        <h1 class="hero-title">⚡ MatchPro ATS Intelligence Engine</h1>
+        <p class="hero-subtitle">Multi-Resume Benchmarking • Precise From-To Phrasing Audits • Production Project Upgrades</p>
+    </div>
+    """, unsafe_allow_html=True)
+with top_col2:
+    selected_theme = st.selectbox("🎨 UI Theme", ["Dark", "Light"], index=0 if st.session_state.theme_mode == "Dark" else 1)
+    if selected_theme != st.session_state.theme_mode:
+        st.session_state.theme_mode = selected_theme
+        st.rerun()
 
 col_left, col_right = st.columns([1, 1], gap="large")
 
@@ -284,7 +284,7 @@ with col_right:
 
 col_btn, col_reset = st.columns([4, 1])
 with col_btn:
-    analyze_btn = st.button("🚀 Run ATS Benchmark & Resume Audit", use_container_width=True)
+    analyze_btn = st.button("🚀 Run Comprehensive ATS & Resume Overhaul", use_container_width=True)
 with col_reset:
     if st.button("🧹 Reset", use_container_width=True):
         st.session_state.ats_results = None
@@ -304,7 +304,7 @@ if analyze_btn:
         st.warning("⚠️ Maximum 5 resumes allowed per batch to preserve API rate limits.")
         st.stop()
 
-    with st.spinner("⚡ Running dual-pass evaluation: ATS Matching + Resume Hygiene & Project Audit..."):
+    with st.spinner("⚡ Running deep evaluation: ATS Matching, Precise Phrasing Diff, and Project Engineering Overhaul..."):
         payload = ""
         skipped_files = []
 
@@ -325,8 +325,8 @@ if analyze_btn:
             st.stop()
 
         prompt = f"""
-You are an elite ATS recruitment architect and professional executive resume editor.
-Analyze each candidate strictly against the Job Description AND conduct a deep resume quality audit.
+You are an elite ATS recruitment architect and principal software engineering hiring director.
+Analyze each candidate strictly against the Job Description AND conduct a granular resume transformation audit.
 
 JOB DESCRIPTION:
 {jd_input}
@@ -365,34 +365,58 @@ Return ONLY valid JSON matching this schema:
         "Distributed message streaming (Kafka) is missing from production background.",
         "No in-memory caching (Redis) mentioned in backend workflows."
       ],
-      "hygiene_audit": {{
-        "grammar_and_typos": [
-          "Spelled 'PostgreSQL' as 'Postgress' in Skills section.",
-          "Inconsistent bullet capitalization in Experience section."
-        ],
-        "link_audit": "GitHub and LinkedIn links are present, but listed as raw un-clickable text. Move clean hyperlinks to the header.",
-        "passive_phrasing_flags": [
-          "Found passive phrase: 'Was responsible for building APIs' -> Change to 'Architected & deployed RESTful microservices'."
-        ]
+      "link_and_contact_audit": {{
+        "current_placement": "LinkedIn and GitHub are pasted as raw URLs at the bottom of page 1.",
+        "recommended_placement": "Move hyperlinked handles ('[github.com/username](https://github.com/username)', '[linkedin.com/in/username](https://linkedin.com/in/username)') into the top header directly under name and contact info.",
+        "reasoning": "ATS parsers parse the top 100 words for candidate contact profiles; links at the bottom get ignored or misclassified."
       }},
+      "phrasing_and_grammar_fixes": [
+        {{
+          "category": "Spelling / Typo",
+          "from_text": "Experienced in building RESTfull web apis using Postgress.",
+          "to_text": "Experienced in engineering RESTful web APIs using PostgreSQL.",
+          "reasoning": "Eliminates typos on industry-standard technical keywords that cause ATS keyword filter drops."
+        }},
+        {{
+          "category": "Passive to Impact Verbs",
+          "from_text": "Was responsible for handling database queries and bugs.",
+          "to_text": "Optimized complex SQL queries and resolved critical backend bugs, reducing query response times by 28%.",
+          "reasoning": "Replaces passive duty phrasing with active leadership and quantifiable performance impact."
+        }}
+      ],
       "role_upgrade_suggestions": [
         {{
           "current_title": "Software Developer Intern",
           "recommended_title": "Junior Backend & Cloud Engineer",
-          "reasoning": "Positions you closer to the target cloud infrastructure responsibilities in this JD."
+          "reasoning": "Aligns your resume headline closer to the target backend/cloud requirements in this JD."
         }}
       ],
-      "project_improvements": [
+      "project_deep_dive": [
         {{
-          "project_title": "E-Commerce Microservices",
-          "current_bullet": "Made backend endpoints and connected database.",
-          "star_rewritten_bullet": "Engineered 14+ high-throughput FastAPI endpoints connected to PostgreSQL, reducing P95 query latency by 32% via Redis caching."
+          "project_name": "E-Commerce Web Platform",
+          "current_summary": "Built a shop website where users can purchase items with authentication and payment.",
+          "identified_mistakes": [
+            "Lacks mentions of architecture scalability, concurrency handling, or database schema design.",
+            "No metrics indicating test coverage or deployment pipelines."
+          ],
+          "from_bullet": "Made backend endpoints and connected database.",
+          "to_bullet": "Engineered 14+ secure REST endpoints using FastAPI and PostgreSQL with JWT authentication and Stripe webhook integration.",
+          "upgrade_roadmap": [
+            "Upgrade 1: Introduce Redis caching to store frequently retrieved product catalogs.",
+            "Upgrade 2: Containerize services with Docker Compose and set up a GitHub Actions CI/CD pipeline."
+          ]
         }}
       ],
-      "recommended_certifications": [
-        "AWS Certified Solutions Architect – Associate (SAA-C03)",
-        "Certified Kubernetes Application Developer (CKAD)"
-      ],
+      "certifications": {{
+        "free_certifications": [
+          {{"title": "freeCodeCamp Back End Development & APIs", "url": "[https://www.freecodecamp.org/learn/back-end-development-and-apis/](https://www.freecodecamp.org/learn/back-end-development-and-apis/)", "desc": "Free foundational cert covering Node.js, Express, MongoDB, and microservices."}},
+          {{"title": "CS50's Introduction to Computer Science (Harvard/edX)", "url": "[https://www.edx.org/cs50](https://www.edx.org/cs50)", "desc": "Free audit path covering memory management, data structures, and algorithms."}}
+        ],
+        "paid_certifications": [
+          {{"title": "AWS Certified Solutions Architect – Associate (SAA-C03)", "provider": "Amazon Web Services", "cost": "~$150 USD", "desc": "Gold standard for cloud infrastructure, networking, and microservices architecture."}},
+          {{"title": "Certified Kubernetes Application Developer (CKAD)", "provider": "Linux Foundation", "cost": "~$395 USD", "desc": "Top-tier container orchestration credential proving deployment skills."}}
+        ]
+      }},
       "course_suggestions": [
         {{"title": "Apache Kafka for Beginners", "url": "[https://www.udemy.com/course/apache-kafka/](https://www.udemy.com/course/apache-kafka/)", "desc": "Master distributed event streaming and message brokers."}},
         {{"title": "AWS Cloud Technical Essentials", "url": "[https://www.coursera.org/learn/aws-cloud-technical-essentials](https://www.coursera.org/learn/aws-cloud-technical-essentials)", "desc": "Hands-on mastery of ECS, EC2, and S3."}}
@@ -413,7 +437,7 @@ Return ONLY valid JSON matching this schema:
             st.error(f"Analysis interrupted: {e}")
 
 # ---------------------------------------------------------
-# Analytics & Presentation Layer
+# Presentation & Drill-Down Layer
 # ---------------------------------------------------------
 if st.session_state.ats_results:
     results = st.session_state.ats_results
@@ -422,7 +446,7 @@ if st.session_state.ats_results:
 
     st.markdown("---")
     
-    # KPI Metric Cards
+    # Summary KPI Cards
     if candidates:
         top_candidate = max(candidates, key=lambda x: x.get("score", 0))
         avg_score = round(sum(c.get("score", 0) for c in candidates) / len(candidates), 1)
@@ -432,14 +456,14 @@ if st.session_state.ats_results:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value">{len(candidates)}</div>
-                <div class="metric-label">Candidates Evaluated</div>
+                <div class="metric-label">Resumes Analyzed</div>
             </div>
             """, unsafe_allow_html=True)
         with m_col2:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value" style="color: #38bdf8;">{top_candidate.get('name', 'N/A')[:14]}</div>
-                <div class="metric-label">Top Benchmark</div>
+                <div class="metric-label">Top Candidate</div>
             </div>
             """, unsafe_allow_html=True)
         with m_col3:
@@ -472,19 +496,21 @@ if st.session_state.ats_results:
             color_continuous_scale=["#f43f5e", "#38bdf8", "#22c55e"],
             range_x=[0, 100]
         )
-        fig.update_traces(
-            texttemplate='<b>%{text}%</b>',
-            textposition='outside',
-            marker=dict(line=dict(width=0))
-        )
+        fig.update_traces(texttemplate='<b>%{text}%</b>', textposition='outside', marker=dict(line=dict(width=0)))
+        
+        paper_bg = "#0d1117" if st.session_state.theme_mode == "Dark" else "#ffffff"
+        plot_bg = "#161b22" if st.session_state.theme_mode == "Dark" else "#f8fafc"
+        font_col = "#c9d1d9" if st.session_state.theme_mode == "Dark" else "#1e293b"
+        grid_col = "#21262d" if st.session_state.theme_mode == "Dark" else "#e2e8f0"
+
         fig.update_layout(
-            paper_bgcolor="#0d1117",
-            plot_bgcolor="#161b22",
-            font=dict(color="#c9d1d9"),
+            paper_bgcolor=paper_bg,
+            plot_bgcolor=plot_bg,
+            font=dict(color=font_col),
             height=280 + (len(candidates) * 45),
             margin=dict(l=20, r=40, t=20, b=20),
             coloraxis_showscale=False,
-            xaxis=dict(showgrid=True, gridcolor="#21262d"),
+            xaxis=dict(showgrid=True, gridcolor=grid_col),
             yaxis=dict(showgrid=False)
         )
         st.plotly_chart(fig, use_container_width=True)
@@ -498,8 +524,8 @@ if st.session_state.ats_results:
             mime="text/csv"
         )
 
-    # Detailed Candidate Reports with Tabs
-    st.markdown("### 📋 Candidate Intelligence & Resume Audits")
+    # Detailed Candidate Reports with 3 Upgraded Tabs
+    st.markdown("### 📋 Candidate Evaluation Drill-Down")
 
     for rep in reports:
         name = rep.get("name", "Candidate")
@@ -508,7 +534,7 @@ if st.session_state.ats_results:
         badge_label = "Strong Match" if score >= 75 else "Moderate Match" if score >= 50 else "Weak Match"
 
         with st.expander(f"👤 {name} — Score: {score}% ({badge_label})", expanded=True):
-            tab1, tab2, tab3 = st.tabs(["🎯 ATS Fit & Gaps", "🔍 Resume Hygiene & Links", "🚀 Role & Project Upgrades"])
+            tab1, tab2, tab3 = st.tabs(["🎯 1. ATS Fit & Skill Gaps", "🔍 2. Resume Hygiene & From➔To Audits", "🚀 3. Projects Overhaul & Certifications"])
 
             # TAB 1: ATS Scoring & Skills
             with tab1:
@@ -520,7 +546,7 @@ if st.session_state.ats_results:
                     for k, v in sb.items():
                         st.write(f"• **{k.title()}**: `{v}`")
 
-                    st.markdown("**🎯 Skill Alignments:**")
+                    st.markdown("**🎯 Technical Skill Alignment:**")
                     skills = rep.get("skills", {})
                     matched_html = "".join([f"<span class='badge badge-matched'>{s}</span>" for s in skills.get('matched', [])]) or "<i>None</i>"
                     partial_html = "".join([f"<span class='badge badge-partial'>{s}</span>" for s in skills.get('partial', [])]) or "<i>None</i>"
@@ -537,49 +563,46 @@ if st.session_state.ats_results:
                     st.markdown("**🎓 Education Fit:**")
                     st.info(rep.get('education_match', 'N/A'))
 
-                    st.markdown("**⚠️ Identified Critical Gaps:**")
+                    st.markdown("**⚠️ Identified Gaps:**")
                     for gap in rep.get("gaps", []):
                         st.markdown(f"- {gap}")
 
-            # TAB 2: Hygiene, Grammar & Links
+            # TAB 2: Resume Hygiene, Links & Precise From➔To Fixes
             with tab2:
-                hygiene = rep.get("hygiene_audit", {})
-                
-                st.markdown("#### 🔗 Hyperlinks & Contact Placement")
-                link_feedback = hygiene.get("link_audit", "No link issues detected.")
+                st.markdown("#### 🔗 Hyperlinks & Profile Placement Audit")
+                link_audit = rep.get("link_and_contact_audit", {})
                 st.markdown(f"""
-                <div class="audit-box">
-                    {link_feedback}
+                <div class="diff-card">
+                    <span style="font-weight: 700; color: #fb7185;">❌ Current Placement:</span><br>
+                    <span class="text-before">{link_audit.get('current_placement', 'N/A')}</span><br><br>
+                    <span style="font-weight: 700; color: #4ade80;">✅ Recommended Placement:</span><br>
+                    <span class="text-after">{link_audit.get('recommended_placement', 'N/A')}</span>
+                    <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>Why this matters:</b> {link_audit.get('reasoning', '')}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
-                st.markdown("#### ✍️ Grammar, Spelling & Formatting Slips")
-                typos = hygiene.get("grammar_and_typos", [])
-                if typos:
-                    for typo in typos:
+                st.markdown("#### ✍️ Granular 'From ➔ To' Phrasing & Grammar Transformations")
+                fixes = rep.get("phrasing_and_grammar_fixes", [])
+                if fixes:
+                    for f in fixes:
+                        cat = f.get("category", "Refinement")
+                        from_txt = f.get("from_text", "")
+                        to_txt = f.get("to_text", "")
+                        reason = f.get("reasoning", "")
                         st.markdown(f"""
-                        <div class="audit-box audit-box-danger">
-                            ⚠️ {typo}
+                        <div class="diff-card">
+                            <span class="badge badge-partial">{cat}</span><br>
+                            <span style="font-weight: 600; color: #fb7185;">❌ From (Current):</span><br>
+                            <span class="text-before">"{from_txt}"</span><br><br>
+                            <span style="font-weight: 600; color: #4ade80;">✅ To (Recommended):</span><br>
+                            <span class="text-after">"{to_txt}"</span>
+                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.5rem; margin-bottom: 0;"><b>ATS Impact:</b> {reason}</p>
                         </div>
                         """, unsafe_allow_html=True)
                 else:
-                    st.success("✅ Clean document! No obvious typos or grammar discrepancies flagged.")
+                    st.success("✅ Clean text! No obvious grammar or weak phrasing slips detected.")
 
-                st.markdown("#### 🛑 Passive Phrasing & Weak Action Verbs")
-                passives = hygiene.get("passive_phrasing_flags", [])
-                if passives:
-                    for p in passives:
-                        st.markdown(f"""
-                        <div class="audit-box audit-box-warn">
-                            💡 {p}
-                        </div>
-                        """, unsafe_allow_html=True)
-                else:
-                    st.info("Strong active verbs utilized throughout work history.")
-
-            # TAB 3: Projects, Titles & Certifications
-            with tab3:
-                st.markdown("#### 🏷️ Recommended Role Title Refinements")
+                st.markdown("#### 🏷️ Recommended Role Title Transformations")
                 roles = rep.get("role_upgrade_suggestions", [])
                 if roles:
                     for r in roles:
@@ -587,40 +610,77 @@ if st.session_state.ats_results:
                         rec = r.get('recommended_title', 'Recommended')
                         reason = r.get('reasoning', '')
                         st.markdown(f"""
-                        <div class="rewrite-card">
-                            <span style="color: #8b949e;">Current:</span> <b>{curr}</b> ➔ 
-                            <span style="color: #4ade80;">Recommended:</span> <b>{rec}</b>
-                            <p style="color: #8b949e; font-size: 0.85rem; margin-top: 0.3rem;">{reason}</p>
+                        <div class="diff-card">
+                            <span style="font-weight: 600; color: #fb7185;">❌ Current Role:</span> <b>{curr}</b> ➔ 
+                            <span style="font-weight: 600; color: #4ade80;">✅ Upgrade To:</span> <b>{rec}</b>
+                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.4rem; margin-bottom: 0;">{reason}</p>
                         </div>
                         """, unsafe_allow_html=True)
 
-                st.markdown("#### 🚀 Project Impact Overhaul (STAR Framework)")
-                projs = rep.get("project_improvements", [])
-                if projs:
-                    for p in projs:
-                        p_title = p.get("project_title", "Project")
-                        curr_b = p.get("current_bullet", "")
-                        star_b = p.get("star_rewritten_bullet", "")
+            # TAB 3: Projects Deep-Dive & Free/Paid Certifications
+            with tab3:
+                st.markdown("#### 🛠️ Project Architecture Analysis & Upgrade Roadmaps")
+                projects = rep.get("project_deep_dive", [])
+                if projects:
+                    for proj in projects:
+                        p_name = proj.get("project_name", "Project")
+                        summary = proj.get("current_summary", "")
+                        mistakes = proj.get("identified_mistakes", [])
+                        from_b = proj.get("from_bullet", "")
+                        to_b = proj.get("to_bullet", "")
+                        roadmaps = proj.get("upgrade_roadmap", [])
+
+                        with st.container():
+                            st.markdown(f"""
+                            <div class="diff-card">
+                                <h4 style="margin: 0; color: #38bdf8;">📌 {p_name}</h4>
+                                <p style="color: #8b949e; font-size: 0.88rem; margin-top: 0.3rem;"><i>{summary}</i></p>
+                                
+                                <b style="color: #fb7185; font-size: 0.88rem;">⚠️ Identified Flaws & Blindspots:</b>
+                                <ul style="color: #8b949e; font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
+                                    {"".join([f"<li>{m}</li>" for m in mistakes])}
+                                </ul>
+
+                                <b style="font-size: 0.88rem;">Impact Bullet Rewrite:</b><br>
+                                <span class="text-before">❌ From: "{from_b}"</span><br>
+                                <span class="text-after">✅ To: "{to_b}"</span><br><br>
+
+                                <b style="color: #38bdf8; font-size: 0.88rem;">🚀 Architectural Upgrade Roadmap:</b>
+                                <ul style="color: #4ade80; font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 0;">
+                                    {"".join([f"<li>{r}</li>" for r in roadmaps])}
+                                </ul>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                st.markdown("#### 📜 Targeted Certifications (Free vs. Industry Paid)")
+                certs_data = rep.get("certifications", {})
+                free_certs = certs_data.get("free_certifications", [])
+                paid_certs = certs_data.get("paid_certifications", [])
+
+                c_col1, c_col2 = st.columns([1, 1], gap="medium")
+                with c_col1:
+                    st.markdown("##### 🟢 Free / Open-Access Certifications")
+                    for fc in free_certs:
+                        title = fc.get("title", "Cert")
+                        url = fc.get("url", "#")
+                        desc = fc.get("desc", "")
                         st.markdown(f"""
-                        <div class="rewrite-card">
-                            <b>📌 {p_title}</b><br>
-                            <span style="color: #fb7185; font-size: 0.85rem;">❌ Weak / Plain:</span> <i>"{curr_b}"</i><br>
-                            <span style="color: #4ade80; font-size: 0.85rem;">✅ STAR Impact Rewrite:</span> <b>"{star_b}"</b>
+                        <div class="diff-card">
+                            <span class="badge badge-free">FREE</span> <b><a href="{url}" target="_blank" style="text-decoration: none; color: inherit;">{title}</a></b>
+                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{desc}</p>
                         </div>
                         """, unsafe_allow_html=True)
 
-                t3_col1, t3_col2 = st.columns([1, 1])
-                with t3_col1:
-                    st.markdown("#### 📜 High-Value Industry Certifications")
-                    certs = rep.get("recommended_certifications", [])
-                    cert_html = "".join([f"<span class='badge badge-cert'>{c}</span>" for c in certs]) or "<i>No specific certs required</i>"
-                    st.markdown(cert_html, unsafe_allow_html=True)
-
-                with t3_col2:
-                    st.markdown("#### 📚 Curated Upskilling Roadmaps")
-                    courses = rep.get("course_suggestions", [])
-                    for c in courses:
-                        title = c.get("title", "Course")
-                        url = c.get("url", "https://coursera.org")
-                        desc = c.get("desc", "")
-                        st.markdown(f"📚 **[{title}]({url})** — *{desc}*")
+                with c_col2:
+                    st.markdown("##### 🟡 High-Value Industry Paid Credentials")
+                    for pc in paid_certs:
+                        title = pc.get("title", "Cert")
+                        provider = pc.get("provider", "")
+                        cost = pc.get("cost", "")
+                        desc = pc.get("desc", "")
+                        st.markdown(f"""
+                        <div class="diff-card">
+                            <span class="badge badge-paid">{cost}</span> <b>{title}</b> <span style="color: #8b949e; font-size: 0.8rem;">({provider})</span>
+                            <p style="color: #8b949e; font-size: 0.83rem; margin-top: 0.3rem; margin-bottom: 0;">{desc}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
