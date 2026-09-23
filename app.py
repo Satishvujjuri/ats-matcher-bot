@@ -98,8 +98,14 @@ def clean_json_string(raw: str) -> str:
     return cleaned.strip()
 
 def generate_with_resilience(prompt: str) -> str:
-    candidate_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-pro"]
+    # Use the active Gemini 3.x models
+    candidate_models = [
+        "gemini-3.1-pro-preview",
+        "gemini-3.1-flash-preview",
+        "gemini-2.5-flash"
+    ]
     last_exception = None
+
 
     for model_name in candidate_models:
         for attempt in range(3):
